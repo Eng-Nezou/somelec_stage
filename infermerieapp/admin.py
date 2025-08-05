@@ -4,6 +4,6 @@ from .models import Employer
 
 
 class EmployerAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'date_naissance', 'matricule', 'Inam')
-    search_fields = ('nom', 'prenom', 'matricule')
+    list_display = ('nom', 'prenom', 'date_naissance', 'matricule', 'inam')
+    search_fields = ('nom', 'prenom', 'matricule','inam')
 admin.site.register(Employer, EmployerAdmin)

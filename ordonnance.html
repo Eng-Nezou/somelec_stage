@@ -64,40 +64,24 @@
                         
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Paracétamol</td>
-                        <td>2</td>
-                        <td>
-                            <div class="action-icons">
-                                <img src="supprimer.png" alt="">
-                                
-                            </div>
-                        </td>
-                        
-                    </tr>
+                <tbody id="medicament-list">
                    
-                    
-                    <tr>
-                        <td>Paracétamol</td>
-                        <td>2</td>
-                        <td>
-                            <div class="action-icons">
-                                <img src="supprimer.png" alt="">
-                                
-                            </div>
-                        </td>
-                        
-                    </tr>
                    
                     
                 </tbody>
             </table>
-                <div class="add-medicament">
-                    <button >Ajouter un médicament</button>
+                
+                
+                <div class="add">
+                    <section style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" name="medicament" placeholder="Nom du médicament" required id="medicament-name">
+                        <input type="number" name="quantite" placeholder="Quantité" required id="medicament-quantity">
+                        <button type="submit" onclick="handleAjouterMedicament()">Ajouter</button>
+                    </section>
                 </div>
         
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>

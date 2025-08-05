@@ -19,7 +19,7 @@ class Employer(models.Model):
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
     matricule = models.CharField(max_length=100)
-    Inam = models.CharField(max_length=16)
+    inam = models.CharField(max_length=16)
     def __str__(self):
         return f"{self.prenom} {self.nom}"
     

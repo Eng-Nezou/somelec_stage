@@ -2,6 +2,7 @@ import pandas as pd
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate,login
 from .models import Employer
+from django.db.models import Q
 # Create your views here.
 
 def auth_login(request):
@@ -25,12 +26,11 @@ def gestionnaire(request):
     return render(request, 'dashbord.html')
 
 def filter_employers(request):
+    employers = []
+
     if request.method == 'POST':
-        matricule = request.POST.get('matricule')
-        if matricule:
-            employers = Employer.objects.filter(matricule=matricule)
-            return render(request, 'filter.html', {'employers': employers})
-    else:
+        matricule_inam = request.POST.get('matricule')
+        employers = Employer.objects.filter(Q(matricule=matricule_inam) | Q(inam=matricule_inam))
         
-        return render(request, 'filter.html')
-    
+
+    return render(request, 'filter.html', {'employers': employers})
