@@ -1,0 +1,40 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    {% block css %}{% endblock %}
+    <link rel="stylesheet" href="{%static 'css/base.css'%}">
+</head>
+<body>
+    
+    <header>
+            
+            <div class="logo">
+                <img src="{% static 'images/logo.jpg' %}" alt="">
+                <h1>INFERMERIE</h1>
+            </div>
+            <div class="links">
+                <ul>
+                    {% if user.role == 'gestionnaire' %}
+                        <li><a href="/filtre/">Ordonnaces</a></li>
+                        <li><a href="/filtre/">Pris en charge</a></li>
+                        <li><a href="/liste_ordonnances/">Listes Ordonnaces</a></li>
+                        {% else %}
+                        <li><a href="/liste_ordonnances/chef/">Listes Ordonnaces</a></li>
+                {% endif %}
+                </ul>
+                    
+                        
+    
+            </div>
+        </header>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+</body>
+</html>

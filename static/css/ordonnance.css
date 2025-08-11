@@ -3,9 +3,6 @@ body {
     font-family: 'Poppins', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
     min-height: 100vh;
 }
 header {
@@ -107,12 +104,14 @@ header h1{
     padding: 14px 18px;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
+    
 }
 
 .table-section th {
     background: #0c215a;
     color: #fff;
     font-weight: 600;
+    padding-inline: 60px;
 }
 
 .table-section tr:last-child td {
@@ -130,8 +129,14 @@ header h1{
 }
 
 /* Ajoute dans ordonnance.css */
-.add section input,
-.add section select,
+.add section input{
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-top: 20px;
+    padding-inline: -5px;
+}
 .add section button {
     padding: 6px 12px;
     border-radius: 4px;
@@ -147,10 +152,11 @@ header h1{
     cursor: pointer;
     transition:  0.2s;
     margin-left: 20px;
-    padding-inline: 60px;
+    padding-inline: 40px;
 }
 
 .add section input {
     background-color: #0c215a;
     
 }
+

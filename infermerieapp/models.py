@@ -24,13 +24,22 @@ class Employer(models.Model):
         return f"{self.prenom} {self.nom}"
     
 class Ordonnance(models.Model):
-    date = models.DateField()
-    heure = models.TimeField()
+    date = models.DateField(auto_now_add=True)
     employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
-    medecin = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='ordonnances')
+    statut = models.CharField(max_length=20, default='en attente' , choices=[
+        ('en attente', 'En attente'),
+        ('validée', 'Validée'),
+        ('annulée', 'Annulée'),
+        ('terminée', 'Terminée'),
+    ])
     
     def __str__(self):
-        return f"Ordonnance de {self.employe} par {self.medecin} le {self.date} à {self.heure}"
+        return f"Ordonnance de {self.employe} par"
+    
+    
+    
+    
+
 
 class Medicament(models.Model):
     nom = models.CharField(max_length=100)

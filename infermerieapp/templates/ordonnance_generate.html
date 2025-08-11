@@ -1,0 +1,66 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ordonnancier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{%static 'css/ordonnance_generate.css'%}">
+</head>
+<body>
+
+    <div class="header">
+        <div class="left-header">
+            SOMELEC<br>
+            DCRH/HSTAS/<br>
+            INFIRMERIE
+        </div>
+        <div class="right-header">
+            <span class="date-label">Date :</span> {{date}}
+        </div>
+    </div>
+
+    <div class="title">Ordonnancier</div>
+
+        <div class="field">
+            <label>Nom :</label><span>{{employer.nom}}</span>
+        </div>
+        <div class="field">
+            <label>Matricule/INAM :</label><span>{{employer.matricule}} / {{employer.inam}}</span>
+        </div>
+
+
+        <div class="lines">
+            {%for medicament in medicaments%}
+            <div class="line" style="display: flex; justify-content: space-between;">
+                <span class="medicament">{{medicament.nom}}</span>
+                <span class="quantity">{{medicament.quantite}}</span>
+            </div>
+            {%endfor%}
+        </div>
+
+    <section class="button-imprimer">
+        {% if ordonnance%}
+        {% if ordonnance.statut == 'validée' %}
+
+        <button onclick="imprimer()" >Imprimer</button>
+        {% else %}
+        <button  disabled>Plus tard</button>
+        <p>L'ordonnance ne pas encore valider</p>
+        {% endif %}
+        {% endif %}
+    </section>
+
+
+
+    <div class="footer">LE MEDECIN CHEF</div>
+
+    <script>
+        function imprimer() {
+            
+            window.print();
+        }
+    </script>
+
+</body>
+</html>

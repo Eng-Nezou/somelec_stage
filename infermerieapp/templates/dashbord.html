@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Infirmerie{% endblock %}
+
+{% load static %}
+{% block content %}
+
+    <div class="container">
+        <div class="ok">
+            <h1>ordonnaces</h1>
+            <p>Les ordonnances permettent aux patients de recevoir les traitements et médicaments nécessaires prescrits par le personnel médical. Elles assurent un suivi rigoureux et facilitent la prise en charge des soins au sein de l’infirmerie</p>
+        </div>
+        <div class="okk">
+            <h1>pris en charge</h1>
+            <p> La prise en charge permet d’assurer un accompagnement personnalisé des patients, depuis l’accueil jusqu’au suivi des soins. Elle garantit une attention adaptée à chaque situation médicale et favorise une meilleure coordination entre les différents intervenants de l’infirmerie</p>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/dashbord.css' %}">
+{% endblock %}

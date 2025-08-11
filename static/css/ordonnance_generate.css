@@ -1,0 +1,88 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 50px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.left-header {
+    line-height: 1.5;
+    font-weight: bold;
+}
+
+.right-header {
+    text-align: right;
+}
+
+.right-header .date-label {
+    font-weight: bold;
+}
+
+.title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin: 40px 0 30px 0;
+}
+
+.field {
+    margin: 10px 0;
+}
+
+.field label {
+    font-weight: bold;
+}
+
+.field span {
+    display: inline-block;
+    border-bottom: 1px dotted #000;
+    width: 75%;
+    margin-left: 5px;
+}
+
+.lines {
+    margin-top: 40px;
+}
+
+.line {
+    border-bottom: 1px solid black;
+    margin: 20px 0;
+}
+
+.footer {
+    margin-top: 80px;
+    display: flex;
+    justify-content: flex-end;
+    font-weight: bold;
+}
+
+.page-number {
+    position: fixed;
+    bottom: 40px;
+    left: 40px;
+    font-size: 32px;
+    color: gray;
+    opacity: 0.3;
+}
+.button-imprimer button{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #0c215a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+@media print {
+    .button-imprimer {
+        display: none;
+    }
+}
+

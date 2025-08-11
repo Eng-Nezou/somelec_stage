@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} liste_ordonnances {% endblock %}
+
+{% block css %}
+   <link rel="stylesheet" href="{% static 'css/liste_ordonnances.css' %}">
+{% endblock %}
+
+    {% block content %}
+        <form action="." method="post">
+            {% csrf_token %}
+            <h1>Rechercher un Employer</h1>
+            <div class="search-input">
+                <input type="search" name="matricule_inam" placeholder="Matricule ou Inam" >
+                <button type="submit">Rechercher</button>
+
+            </div>
+        </form>
+        <section>
+            <div class="container">
+                <div class="section">
+                
+
+                    
+                    {% if ordonnances %}
+                        <div class="ordonnances">
+                            {% for ordonnance in ordonnances %}
+                            <article>
+
+                                <div class="ordonnance">
+                                    <h3>Ordonnance #{{ ordonnance.id }}</h3>
+                                    <p><strong>Date :</strong> {{ ordonnance.date }}</p>
+                                    <p><strong>Statut :</strong> {{ ordonnance.statut }}</p>
+                                    <p><strong>Assurer :</strong> {{ ordonnance.employe.nom }} ({{ ordonnance.employe.matricule }})</p>
+                                    
+                                </div>
+                                <div class="medicaments">
+                                    <h4>Médicaments :</h4>
+                                    {% for medicament in ordonnance.medicaments.all %}
+                                        <p>{{ medicament.nom }} - Quantité : {{ medicament.quantite }}</p>
+                                    {% endfor %}
+    
+                                </div>
+                                {% if ordonnance.statut == 'validée' %}
+                                    <a href="/ordonnances/{{ ordonnance.id }}/">Terminer</a>
+                                    <a href="/ordonnance/pdf/{{ ordonnance.id }}/">Voire L'ordonnance</a>
+                                {% endif %}
+                            </article>
+                            
+                            {% endfor %}
+                        </div>
+                        
+                    {% else %}
+                        <p>Aucune ordonnance trouvée.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        
+
+                
+        </section>
+    {% endblock %}

@@ -20,7 +20,8 @@
             <ul>
                 <li><a href="#">Ordonnaces</a></li>
                 <li><a href="#">Pris en charge</a></li>
-                
+                <li><a href="/liste_ordonnances/">Listes Ordonnaces</a></li>
+
             </ul>
 
         </div>
@@ -58,7 +59,7 @@
                     
                     <form action="/ordonnance/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="matricule" value="{{ employer.matricule }} ,{{employer.inam}}" >
+                        <input type="hidden" name="inam_assurer" value="{{employer.inam}}" >
                         <button type="submit" style="width: 100%; padding-block:5px">Ajouter</button>
                     </form>
                 </td>
