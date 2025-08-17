@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Employer,Ordonnance,Medicament, Utilisateur
+from .models import Employer,Ordonnance,Medicament, Reference, Utilisateur
 # Register your models here.
 
 
@@ -11,3 +11,4 @@ admin.site.register(Employer, EmployerAdmin)
 admin.site.register(Ordonnance)
 admin.site.register(Medicament)
 admin.site.register(Utilisateur)
+admin.site.register(Reference)

@@ -1,37 +1,13 @@
+{% extends 'base.html' %}
 {%load static%}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block css %}
     <link rel="stylesheet" href="{%static 'css/ordonnance.css'%}">
-</head>
-<body>
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="ordonnance.css">
+{% endblock %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-</head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="{%static 'images/logo.jpg'%}" alt="">
-            <h1>INFERMERIE</h1>
-        </div>
-        <div class="links">
-            <ul>
-                <li><a href="#">Ordonnaces</a></li>
-                <li><a href="#">Pris en charge</a></li>
-                <li><a href="/liste_ordonnances/">Listes Ordonnaces</a></li>
-            </ul>
 
-        </div>
-    </header>
+{% block content %}
     <div class="container">
         <div class="ordonnance-info">
             <p>
@@ -56,8 +32,8 @@
                     <tr>
                         <th>Médicament</th>
                         <th>Qté demandée</th>
+                        <th>utilisation</th>
                         <th>Action</th>
-                        
                     </tr>
                 </thead>
                 <tbody id="medicament-list">
@@ -69,6 +45,7 @@
                     <section style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" name="medicament" placeholder="Nom du médicament" required id="medicament-name" style="color: white;">
                         <input type="number" name="quantite" placeholder="Quantité" required id="medicament-quantity" style="color: white;">
+                        <input type="number" name="utilisation" placeholder="nombre par Jour" required id="medicament-utilisation" style="color: white;">
                         <button type="submit" onclick="handleAjouterMedicament()">Ajouter</button>
                     </section>
                     <section>
@@ -83,6 +60,81 @@
         
         </div>
     </div>
-    <script src="{%static 'js/script.js'%}"></script>
-</body>
-</html>
+    <script>
+        let medicamentList = [];
+function handleAjouterMedicament(event) {
+
+    let medicamentName = document.getElementById('medicament-name').value;
+    let medicamentQuantity = document.getElementById('medicament-quantity').value;
+    let medicamentUtilisation = document.getElementById('medicament-utilisation').value;
+    if (/^ *$/.test(medicamentName)) {
+        alert("Le nom du médicament ne peut pas être vide.");
+        return;
+    }
+    if (medicamentName.length < 3) {
+        alert("Le nom du médicament doit contenir au moins 3 caractères.");
+        return;
+    }
+    if (medicamentQuantity <= 0) {
+        alert("La quantité doit être supérieure à zéro.");
+        return;
+    }
+    if(medicamentList.length>='{{reference.quantite_medicament}}'){
+        alert("le tableau de medicement ne peut pas pase {{reference.quantite_medicament}}");
+        return;
+    }
+    const medicament = {
+        name: medicamentName,
+        quantity: medicamentQuantity,
+        utilisation: medicamentUtilisation
+    };
+    medicamentList.push(medicament);
+    handleRemplirTableau();
+
+}
+
+
+function handleRemplirTableau() {
+    let tbody = document.getElementById('medicament-list');
+    tbody.innerHTML = '';
+    medicamentList.forEach(medicament => {
+        tbody.innerHTML += 
+            `<tr>
+                <td>${medicament.name}</td>
+                <td>${medicament.quantity}</td>
+                <td>${medicament.utilisation} / Jour</td>
+                
+                <td>
+                    <div class="action-icons" onclick="handleSupprimerMedicament(${medicamentList.indexOf(medicament)})">
+                        <img src="/static/images/supprimer.png" alt="">
+                    </div>
+                </td>
+            </tr>`;
+    });
+}
+
+
+function handleSupprimerMedicament(index) {
+    medicamentList.splice(index, 1);
+    handleRemplirTableau();
+}
+
+document.getElementById('ordonnance-form').addEventListener('submit', function(event) {
+    let hiddenInput = document.getElementById('medicaments-json');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'medicaments';
+        hiddenInput.id = 'medicaments-json';
+        this.appendChild(hiddenInput);
+    }
+    hiddenInput.value = JSON.stringify(medicamentList);
+    
+    if (medicamentList.length == 0) {
+        event.preventDefault();
+        alert("Veuillez ajouter au moins un médicament avant de générer l'ordonnance.");
+        return;
+    }
+});
+    </script>
+{% endblock %}

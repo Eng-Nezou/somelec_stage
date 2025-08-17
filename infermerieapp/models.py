@@ -13,6 +13,12 @@ class Utilisateur(AbstractUser):
     
     def __str__(self):
         return self.username
+class Reference(models.Model):
+    quantite_medicament = models.IntegerField()
+    nom_chef = models.CharField(max_length=200) 
+    nom_medecin = models.CharField(max_length=200)
+    nom_technicien = models.CharField(max_length=200)
+    
 
 class Employer(models.Model):
     nom = models.CharField(max_length=100)
@@ -32,7 +38,12 @@ class Ordonnance(models.Model):
         ('annulée', 'Annulée'),
         ('terminée', 'Terminée'),
     ])
+    validate_chef = models.BooleanField(default=False)
+    validate_medecin = models.BooleanField(default=False)
     
+    nom_chef = models.CharField(max_length=200,null=True)
+    nom_medecin = models.CharField(max_length=200,null=True)
+    nom_technicien = models.CharField(max_length=200,null=True)
     def __str__(self):
         return f"Ordonnance de {self.employe} par"
     
@@ -45,6 +56,9 @@ class Medicament(models.Model):
     nom = models.CharField(max_length=100)
     ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE, related_name='medicaments')
     quantite = models.IntegerField()
+    utilisation = models.IntegerField(null=True)
     
     def __str__(self):
         return f"{self.nom} - {self.quantite} "
+    
+    

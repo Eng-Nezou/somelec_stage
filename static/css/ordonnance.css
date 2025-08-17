@@ -60,8 +60,8 @@ header h1{
 }
 .container {
     display: grid;
-    grid-template-columns: 1fr 500px;
-    gap:40px;
+    grid-template-columns: 400px 1fr;
+    gap:20px;
     width: 80%;
     margin-top: 40px;
     justify-content: center;
