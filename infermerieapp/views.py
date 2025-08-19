@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate,login,logout
-from .models import Employer,Ordonnance,Medicament, Reference
+from .models import Analyse, Consultation, Employer, Examen, Institution,Ordonnance,Medicament, Reference
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 import datetime
@@ -32,7 +32,16 @@ def gestionnaire(request):
 
 def filter_employers(request):
     employers = []
-
+    
+    # df = pd.read_excel('employers.xlsx')
+    # for _, row in df.iterrows():
+    #     Employer.objects.create(
+    #         nom=row['NOM'],
+    #         ur=row['UR'],
+    #         date_naissance=row['DATE NAISS'],
+    #         matricule=row['MATRICULE'],
+    #         inam=row['INAM']
+    #     )
 
 
     if request.method == 'POST':
@@ -41,6 +50,15 @@ def filter_employers(request):
         
 
     return render(request, 'filter.html', {'employers': employers})
+
+
+def pris_en_charge(request):
+    employers = []
+    if request.method == 'POST':
+        matricule_inam = request.POST.get('matricule')
+        employers = Employer.objects.filter(Q(matricule=matricule_inam) | Q(inam=matricule_inam))
+        
+    return render(request, 'pris_charge.html', {'employers': employers})
 
 
 def ordonnance_view(request):
@@ -66,25 +84,34 @@ def ordonnance_view(request):
 def ordonnance_generate(request):
     reference = Reference.objects.last()
     if request.method == 'POST':
+        total_quantite = 0
+        gfu_whatsap = request.POST.get('gfu_whatsap')
         medicaments_json = request.POST.get('medicaments')
         inam_assurer = request.POST.get('inam_assurer')
         employer = Employer.objects.get(inam=inam_assurer)
-        ordonnance = Ordonnance(employe=employer)
+        prescription = request.POST.get('prescription')
+        diagnostic = request.POST.get('diagnostic')
+        
+        ordonnance = Ordonnance(employe=employer, gfu_whatsap=gfu_whatsap,prescription=prescription, diagnostic=diagnostic)
         ordonnance.save()
         
         medicaments = json.loads(medicaments_json) if medicaments_json else []
         for medicament in medicaments:
+            total_quantite+= int(medicament.get('quantity', 0))
             name = medicament.get('name')
             quantity = medicament.get('quantity')
             utilisation = medicament.get('utilisation')
+            dosage = medicament.get('dosage')
+            duree = medicament.get('duree')
+            type_duree = medicament.get('type_duree')
             if name and quantity:
-                med = Medicament(nom=name, quantite=quantity, ordonnance=ordonnance,utilisation=utilisation)
+                med = Medicament(nom=name, quantite=quantity, ordonnance=ordonnance,utilisation=utilisation , dosage=dosage, duree=duree, type_duree=type_duree)
                 med.save()
         medicaments = Medicament.objects.filter(ordonnance=ordonnance)
         today_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        return render(request, 'ordonnance_generate.html', {'employer': employer, 'medicaments': medicaments,'date': today_date, 'ordonnance': ordonnance , 'reference': reference})
+        return render(request, 'ordonnance_generate.html', {'employer': employer, 'medicaments': medicaments,'date': today_date, 'ordonnance': ordonnance , 'reference': reference ,'total_quantite': total_quantite})
         
-    return render(request, 'ordonnance_generate.html',{'ordonnance': None, 'employer': None, 'medicaments': [], 'date': datetime.datetime.now().strftime("%Y-%m-%d"),'reference': reference})
+    return render(request, 'ordonnance_generate.html',{'ordonnance': None, 'employer': None, 'medicaments': [], 'date': datetime.datetime.now().strftime("%Y-%m-%d"),'reference': reference ,'total_quantite': 0})
 
 
 
@@ -95,11 +122,10 @@ from django.db.models import Q
 def liste_ordonnances(request):
     ordonnances = Ordonnance.objects.all().order_by('-date')  # start with all
     medicaments = Medicament.objects.none()
-
+    
     if request.method == 'POST':
         matricule_inam = request.POST.get('matricule_inam')
         filter_date = request.POST.get('filter_date')
-
         if matricule_inam:
             employers = Employer.objects.filter(
                 Q(inam=matricule_inam) | Q(matricule=matricule_inam)
@@ -110,6 +136,7 @@ def liste_ordonnances(request):
             ordonnances = ordonnances.filter(date=filter_date)
 
         medicaments = Medicament.objects.filter(ordonnance__in=ordonnances)
+        
         return render(request, 'liste_ordonnances.html', {
         'ordonnances': ordonnances,
         'medicaments': medicaments
@@ -139,16 +166,21 @@ def voire_ordonnance(request, pk):
 def medecin(request):
     
     reference = Reference.objects.last()
-    if request.user.role!='chef service':
+    if request.user.role!='medecin':
         return redirect('/dashbord/')
     ordonnances = Ordonnance.objects.filter(statut='en attente').order_by('-date')
+    ordonnances = ordonnances.filter(validate_medecin=False)
     medicaments = Medicament.objects.none()
     
     if request.method == 'POST':
         ordonnance_id=request.POST.get('ordonnance_id')
         statut=request.POST.get('statut')
         ordonnance=Ordonnance.objects.get(id=ordonnance_id)
-        ordonnance.statut=statut
+        if statut == 'validée':
+            ordonnance.validate_medecin = True
+        else:
+            ordonnance.validate_medecin = False
+        
         
         
 
@@ -159,6 +191,8 @@ def medecin(request):
         
         ordonnances = Ordonnance.objects.filter(statut='en attente').order_by('-date')
         medicaments = Medicament.objects.none()
+        ordonnances = ordonnances.filter(validate_medecin=False)
+        
         
         return render(request, 'medecin.html', {
         'ordonnances': ordonnances,
@@ -214,3 +248,37 @@ def tableau_referencer(request):
         reference.save()
     return render(request,'tableau_References.html',{'reference':reference})
     
+def referencer_pris_en_charge(request):
+    
+    if request.method == 'POST':
+        consultation= request.POST.get('consultation')
+        institution = request.POST.get('institution')
+        analyse = request.POST.get('analyse')
+        examen = request.POST.get('examen')
+        if consultation:
+            Consultation.objects.create(nom=consultation)
+        if institution:
+            Institution.objects.create(nom=institution)
+        if analyse :
+            Analyse.objects.create(nom=analyse)
+        if examen:
+            Examen.objects.create(nom=examen)
+    
+        
+    return render(request, 'referencer_pris_en_charge.html')   
+
+def supprimer(request):
+    if request.method == 'POST':
+        consultation = request.POST.get('consultation')
+        institution = request.POST.get('institution')
+        analyse = request.POST.get('analyse')
+        examen = request.POST.get('examen')
+        if consultation:
+            Consultation.objects.filter(nom=consultation).delete()
+        if institution:
+            Institution.objects.filter(nom=institution).delete()
+        if analyse:
+            Analyse.objects.filter(nom=analyse).delete()
+        if examen:
+            Examen.objects.filter(nom=examen).delete()
+    return render(request, 'supprimer.html')         

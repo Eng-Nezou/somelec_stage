@@ -19,19 +19,52 @@ class Reference(models.Model):
     nom_medecin = models.CharField(max_length=200)
     nom_technicien = models.CharField(max_length=200)
     
+class Institution(models.Model):
+    nom = models.CharField(max_length=100)
+    
+    
+    def __str__(self):
+        return self.nom
 
+class Consultation(models.Model):
+    nom= models.CharField(max_length=100) 
+    
+    def __str__(self):
+        return self.nom
+    
+class Analyse(models.Model):
+    nom = models.CharField(max_length=100)
+    
+    
+    def __str__(self):
+        return self.nom     
+    
+class Examen(models.Model):
+    nom = models.CharField(max_length=100)
+    
+    
+    def __str__(self):
+        return self.nom      
 class Employer(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
     matricule = models.CharField(max_length=100)
     inam = models.CharField(max_length=16)
+    ur = models.CharField(max_length=100, null=True, blank=True)
     def __str__(self):
         return f"{self.prenom} {self.nom}"
     
 class Ordonnance(models.Model):
     date = models.DateField(auto_now_add=True)
     employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
+    gfu_whatsap = models.CharField(max_length=20, null=True, blank=True)
+    prescription = models.CharField(max_length=20, null=True, blank=True, choices=[
+        ('Normale', 'Normale'), 
+        ('Urgent', 'Urgent'),
+        ('Chronique', 'Chronique'),
+    ])
+    diagnostic = models.CharField(max_length=200, null=True, blank=True)
     statut = models.CharField(max_length=20, default='en attente' , choices=[
         ('en attente', 'En attente'),
         ('validée', 'Validée'),
@@ -46,8 +79,22 @@ class Ordonnance(models.Model):
     nom_technicien = models.CharField(max_length=200,null=True)
     def __str__(self):
         return f"Ordonnance de {self.employe} par"
+
+class PrisEnCharge(models.Model):
+    employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
+    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
+    analyse = models.ForeignKey(Analyse, on_delete=models.CASCADE, null=True, blank=True)
+    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateField(auto_now_add=True)
+    gfu_whatsap = models.CharField(max_length=20, null=True, blank=True)
     
+    validate_chef = models.BooleanField(default=False)
+    validate_medecin = models.BooleanField(default=False)
+    validate_technicien = models.BooleanField(default=False)
     
+    def __str__(self):
+        return f"Pris en charge de {self.employe} par {self.institution} pour {self.consultation}"    
     
     
 
@@ -57,7 +104,20 @@ class Medicament(models.Model):
     ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE, related_name='medicaments')
     quantite = models.IntegerField()
     utilisation = models.IntegerField(null=True)
-    
+    dosage = models.CharField(max_length=50, null=True, blank=True, choices=[
+        ('cp', 'CP'),
+        ('sirop', 'SIROP'),
+        ('gel', 'GEL'),
+        ('sachet', 'SACHET'),
+        ('creme', 'CREME'),
+        ('injectable', 'INJECTABLE'),
+    ])
+    duree = models.IntegerField(null=True, blank=True)
+    type_duree = models.CharField(max_length=20, null=True, blank=True, choices=[
+        ('jour', 'Jour'),
+        ('semaine', 'Semaine'),
+        ('mois', 'Mois'),
+    ])
     def __str__(self):
         return f"{self.nom} - {self.quantite} "
     

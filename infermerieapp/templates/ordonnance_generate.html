@@ -29,23 +29,51 @@
 </div>
 
 <h2><span>Ordonnancier NO {{ordonnance.id}}</span> </h2>
-
+<h3>GFU/WHATSAP:{{ordonnance.gfu_whatsap}}</h3>
+<h3>Statut de la prescription:{{ordonnance.prescription}}</h3>
+<h3>Diagnostic:{{ordonnance.diagnostic}}</h3>
 <div class="field">
     <label>Nom :</label><span>{{employer.nom}}</span>
 </div>
 <div class="field">
     <label>Matricule/INAM :</label><span>{{employer.matricule}} / {{employer.inam}}</span>
 </div>
+<div class="field">
+    <label>UR :</label><span>{{employer.ur}}</span>
+</div>
     
 
-<div class="lines">
-            {%for medicament in medicaments%}
-            <div class="line" style="display: flex; justify-content: space-between;">
-                <span class="medicament">{{medicament.nom}} - {{medicament.utilisation}} / Jour</span>
-                <span class="quantity">{{medicament.quantite}}</span>
-            </div>
-            {%endfor%}
-</div>
+<table id="medicaments-table">
+    <thead>
+        <tr>
+            <th>Médicament</th>
+            <th>Dosage</th>
+            <th>Usage/jour</th>
+            <th>Durée</th>
+            <th>Qte demandée</th>
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for medicament in medicaments %}
+        <tr>
+            <td>{{medicament.nom}}</td>
+            <td>{{medicament.dosage}}</td>
+            <td>{{medicament.utilisation}}</td>
+            <td>{{medicament.duree}} {{medicament.type_duree}}(s)</td>
+            <td>{{medicament.quantite}}</td>
+            
+            
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" class="total">Total Quantite</td>
+            <td>{{total_quantite}}</td>
+        </tr>
+    </tbody>
+</table>
+
 
 
 <div class="signature" style="margin-top: 50px;">

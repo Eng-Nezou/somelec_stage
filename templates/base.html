@@ -25,8 +25,10 @@
                         <li><a href="/liste_ordonnances/">Listes Ordonnaces</a></li>
                         <li><a href="/liste_pris_en_charge/">liste pris en charge</a></li>
                         <li><a href="/tableau_referencer/">tableau referencer</a></li>
-                        {% else %}
+                        {% elif user.role == 'chef service' %}
                         <li><a href="/liste_ordonnances/chef/">Listes Ordonnaces</a></li>
+                        {% elif user.role == 'medecin' %}
+                        <li><a href="/liste_ordonnances/medecin/">Listes Ordonnaces</a></li>
                 {% endif %}
             <li><a href="/logout/">Logout</a></li>
                 </ul>
@@ -38,6 +40,8 @@
         <main>
             {% block content %}
             {% endblock %}
+
         </main>
+        {% block js %}{% endblock %}
 </body>
 </html>

@@ -4,6 +4,7 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    
 }
 header {
     display: flex;
@@ -60,7 +61,7 @@ header h1{
 }
 .container {
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-rows: 300px 1fr;
     gap:20px;
     width: 80%;
     margin-top: 40px;
@@ -70,7 +71,7 @@ header h1{
 
 .ordonnance-info {
     background: #e3eafc;
-    padding: 18px 28px;
+    padding: 20px;
     border-radius: 10px;
 }
 
@@ -117,6 +118,7 @@ header h1{
 .table-section tr:last-child td {
     border-bottom: none;
 }
+
 .action-icons{
     width: 40px;
     height: 40px;
@@ -129,13 +131,15 @@ header h1{
 }
 
 /* Ajoute dans ordonnance.css */
-.add section input{
+.add section input,.add section select {
     padding: 6px 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
     font-size: 1rem;
     margin-top: 20px;
     padding-inline: -5px;
+    background-color: #0c215a;
+    color: white;
 }
 .add section button {
     padding: 6px 12px;
@@ -146,6 +150,9 @@ header h1{
 }
 
 .add section button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #0c215a;
     color: #fff;
     border: none;
@@ -153,10 +160,12 @@ header h1{
     transition:  0.2s;
     margin-left: 20px;
     padding-inline: 40px;
-}
-
-.add section input {
-    background-color: #0c215a;
+    
     
 }
+.add section ,.duree input{
+    margin-bottom: 10px;
+}
+
+
 

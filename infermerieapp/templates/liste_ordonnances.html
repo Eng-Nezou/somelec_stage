@@ -36,12 +36,20 @@
                                     <p><strong>Date :</strong> {{ ordonnance.date }}</p>
                                     <p><strong>Statut :</strong> {{ ordonnance.statut }}</p>
                                     <p><strong>Assurer :</strong> {{ ordonnance.employe.nom }} ({{ ordonnance.employe.matricule }})</p>
-                                    
+                                    <p><strong>UR: </strong>{{ ordonnance.employe.ur }}</p>
+                                    <p><strong>gfu_whatsap:</strong>{{ ordonnance.gfu_whatsap }}</p>
+                                    <p><strong>prescription:</strong>{{ ordonnance.prescription }}</p>
+                                    <p><strong>diagnostic:</strong>{{ ordonnance.diagnostic }}</p>
+
                                 </div>
                                 <div class="medicaments">
                                     <h4>Médicaments :</h4>
                                     {% for medicament in ordonnance.medicaments.all %}
-                                        <p>{{ medicament.nom }} - Quantité : {{ medicament.quantite }} - Utilisation : {{medicament.utilisation}} / Jour(s)</p>
+                                        <p>{{ medicament.nom }} - Quantité : {{ medicament.quantite }} </p>
+                                        <p>Utilisation: {{ medicament.utilisation }}/jour(s)</p>
+                                        <p>dosage: {{ medicament.dosage }}</p>
+                                        <p>duree: {{ medicament.duree }} {{medicament.type_duree}}(s)</p>
+                                        <p>total_quantite: {{ medicament.total_quantite }} </p>
                                     {% endfor %}
                                 </div>
                                 {%if ordonnance.statut == 'validée'%}

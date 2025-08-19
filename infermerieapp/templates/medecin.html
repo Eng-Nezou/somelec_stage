@@ -17,32 +17,43 @@
                         <div class="ordonnances">
                             {% for ordonnance in ordonnances %}
                             <article>
+
                                 <div class="ordonnance">
                                     <h3>Ordonnance #{{ ordonnance.id }}</h3>
                                     <p><strong>Date :</strong> {{ ordonnance.date }}</p>
                                     <p><strong>Statut :</strong> {{ ordonnance.statut }}</p>
                                     <p><strong>Assurer :</strong> {{ ordonnance.employe.nom }} ({{ ordonnance.employe.matricule }})</p>
+                                    <p><strong>UR: </strong>{{ ordonnance.employe.ur }}</p>
+                                    <p><strong>gfu_whatsap:</strong>{{ ordonnance.gfu_whatsap }}</p>
+                                    <p><strong>prescription:</strong>{{ ordonnance.prescription }}</p>
+                                    <p><strong>diagnostic:</strong>{{ ordonnance.diagnostic }}</p>
+                                    
                                 </div>
                                 <div class="medicaments">
                                     <h4>Médicaments :</h4>
                                     {% for medicament in ordonnance.medicaments.all %}
                                         <p>{{ medicament.nom }} - Quantité : {{ medicament.quantite }}</p>
+                                        <p>Utilisation: {{ medicament.utilisation }}/jour(s)</p>
+                                        <p>dosage: {{ medicament.dosage }}</p>
+                                        <p>duree: {{ medicament.duree }} {{medicament.type_duree}}(s)</p>
                                     {% endfor %}
-                                    <form action="." method="post">
-                                    {% csrf_token %}
-                                    <select name="statut" id="" onchange="this.form.submit()">
-                                        <option value="">---</option>
-                                        <option value="validée">Validée</option>
-                                        <option value="annulée">Annulée</option>
-                                    </select>
-                                    <input type="hidden" value="{{ordonnance.id}}" name="ordonnance_id">
+                                    <form action="." method="post" id="ordonnance-form">
+                                        {% csrf_token %}
+                                            <select name="statut" onchange="handleSubmitForm(event)">
+                                                <option value="">---</option>
+                                                <option value="validée">Validée</option>
+                                                <option value="annulée">Annulée</option>
+                                            </select>
+                                            <input type="hidden" value="{{ ordonnance.id }}" name="ordonnance_id">
                                     </form>
+    
                                 </div>
                                 {% if ordonnance.statut == 'validée' %}
                                     <a href="/ordonnances/{{ ordonnance.id }}/">Terminer</a>
                                     <a href="/ordonnance/pdf/{{ ordonnance.id }}/">Voire L'ordonnance</a>
                                 {% endif %}
                             </article>
+                            
                             {% endfor %}
                         </div>
                         
@@ -51,5 +62,42 @@
                     {% endif %}
                 </div>
             </div>
+
+        
+
+                
         </section>
+        <div class="toast-container animate-toast" id="success-message">
+                <div class="toast-content">
+                    L'ordonnance a validée avec success
+                    <div class="toast-progress" >
+                    </div>
+                </div>
+        </div>
+{% endblock %}
+{% block js %}
+<script>
+
+        function handleSubmitForm(event){
+            let statut = event.target.value;
+
+            let successMessage = document.getElementById('success-message');
+            let form = document.getElementById('ordonnance-form');
+            
+            if (statut === 'validée'){
+                successMessage.innerHTML = "<div class='toast-content'>L'ordonnance est validee avec success<div class='toast-progress'></div></div>";
+            }
+            else{
+                successMessage.innerHTML = "<div class='toast-content'>L'ordonnance est annulee avec success<div class='toast-progress'></div></div>";
+            }
+            successMessage.style.display = 'flex';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                form.submit();
+            }, 3000);
+
+        }
+    
+    </script>
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{%static 'css/filter.css'%}">
+{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+{% block content %}
+
+
+    <div class="container">
+        <form action="/pris_charge/" method="post">
+            {% csrf_token %}
+            <h1>Rechercher un Employer</h1>
+            <div class="search-input">
+                <input type="search" name="matricule" placeholder="Matricule ou Inam" >
+                <button type="submit">Rechercher</button>
+
+            </div>
+        </form>
+    </div>
+    {% if employers %}
+    <table class="ordonnace-table">
+        <thead>
+            <tr>
+                <th>Inam</th>
+                <th>Matricule</th>
+                <th>Nom</th>
+                <th>Ajouter pris en charge</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employer in employers %}
+            <tr>
+                <td>{{employer.inam}}</td>
+                <td>{{ employer.matricule }}</td>
+                <td>{{ employer.nom }}</td>
+                <td style="display: flex;
+                    justify-content: center;">
+                    
+                    <form action="/tableau_pris/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="inam_assurer" value="{{employer.inam}}" >
+                        <button type="submit" style="width: 100%; padding-block:5px">Ajouter</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        
+        </tbody>
+    </table>
+    {%endif%}
+{% endblock %}

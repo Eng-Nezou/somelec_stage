@@ -22,6 +22,23 @@
             <p>
                 Nom:<span class="nom">{{employer.nom}}</span>
             </p>
+            <p>
+                GFU/WHATSAP:<input type="text" name="gfu_whatsap" id="gfu_whatsap"  placeholder="GFU/WHATSAP" style="color: rgb(0, 0, 0);" required>
+                
+            </p>
+            <p>
+                Diagnostic:<input type="text" name="diagnostic" id="diagnostic"  placeholder="diagnostic" style="color: rgb(0, 0, 0);" required>
+                
+            </p>
+            <p>
+                Statut de la prescription:
+                <select name="prescription" id="">
+                    <option value="">---</option>
+                    <option value="Normale">Normale</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Chronique">Chronique</option>
+                </select>
+            </p>
             
 
         </div>
@@ -31,8 +48,10 @@
                 <thead>
                     <tr>
                         <th>Médicament</th>
+                        <th>dosage</th>
                         <th>Qté demandée</th>
                         <th>utilisation</th>
+                        <th>Durée</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -44,8 +63,26 @@
                 <div class="add">
                     <section style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" name="medicament" placeholder="Nom du médicament" required id="medicament-name" style="color: white;">
+                        <select name="dosage" id="">
+                            <option value="">Sélectionner le dosage</option>
+                            <option value="cp">CP</option>
+                            <option value="sirop">SIROP</option>
+                            <option value="gel">GEL</option>
+                            <option value="sachet">SACHET</option>
+                            <option value="creme">CREME</option>
+                            <option value="injectable">INJECTABLE</option>
+                            
+                        </select>
                         <input type="number" name="quantite" placeholder="Quantité" required id="medicament-quantity" style="color: white;">
                         <input type="number" name="utilisation" placeholder="nombre par Jour" required id="medicament-utilisation" style="color: white;">
+                        <div class="duree">
+                            <input type="number" name="duree" id="duree" min="1" value="1" style="color: white;">
+                            <select name="type_duree" id="">
+                                <option value="jour">Jour</option>
+                                <option value="semaine">Semaine</option>
+                                <option value="mois">Mois</option>
+                            </select>
+                        </div>
                         <button type="submit" onclick="handleAjouterMedicament()">Ajouter</button>
                     </section>
                     <section>
@@ -53,6 +90,9 @@
                             {% csrf_token %}
                             <input type="hidden" name="inam_assurer" value="{{employer.inam}}">
                             <button type="submit">Générer l'ordonnance</button>
+                            
+
+                            
                         </form>
                     </section>
                 </div>
@@ -67,6 +107,9 @@ function handleAjouterMedicament(event) {
     let medicamentName = document.getElementById('medicament-name').value;
     let medicamentQuantity = document.getElementById('medicament-quantity').value;
     let medicamentUtilisation = document.getElementById('medicament-utilisation').value;
+    let medicamentDosage = document.querySelector('select[name="dosage"]').value;
+    let medicamentDuree = document.getElementById('duree').value;
+    let medicamentTypeDuree = document.querySelector('select[name="type_duree"]').value;
     if (/^ *$/.test(medicamentName)) {
         alert("Le nom du médicament ne peut pas être vide.");
         return;
@@ -86,7 +129,10 @@ function handleAjouterMedicament(event) {
     const medicament = {
         name: medicamentName,
         quantity: medicamentQuantity,
-        utilisation: medicamentUtilisation
+        utilisation: medicamentUtilisation,
+        dosage: medicamentDosage,
+        duree: medicamentDuree,
+        type_duree: medicamentTypeDuree
     };
     medicamentList.push(medicament);
     handleRemplirTableau();
@@ -101,8 +147,10 @@ function handleRemplirTableau() {
         tbody.innerHTML += 
             `<tr>
                 <td>${medicament.name}</td>
+                <td>${medicament.dosage}</td>
                 <td>${medicament.quantity}</td>
                 <td>${medicament.utilisation} / Jour</td>
+                <td>${medicament.duree || ''} ${medicament.type_duree || ''}</td>
                 
                 <td>
                     <div class="action-icons" onclick="handleSupprimerMedicament(${medicamentList.indexOf(medicament)})">
@@ -121,6 +169,45 @@ function handleSupprimerMedicament(index) {
 
 document.getElementById('ordonnance-form').addEventListener('submit', function(event) {
     let hiddenInput = document.getElementById('medicaments-json');
+    let gfu_whatsap = document.getElementById('gfu_whatsap').value;
+    let diagnostic = document.getElementById('diagnostic').value;
+    let prescription = document.querySelector('select[name="prescription"]').value;
+    
+    if (gfu_whatsap.trim() === '') {
+        alert("Veuillez entrer le GFU/WHATSAP.");
+        event.preventDefault();
+        return;
+    }
+    let hiddenInpu = document.createElement("input");
+        hiddenInpu.type = "hidden";
+        hiddenInpu.name = "gfu_whatsap";
+        hiddenInpu.value = gfu_whatsap;
+
+        // Append to current form
+        this.appendChild(hiddenInpu);
+    if (diagnostic.trim() === '') {
+        alert("Veuillez entrer le diagnostic.");
+        event.preventDefault();
+        return;
+    }
+    let hiddenInputDiag = document.createElement("input");
+        hiddenInputDiag.type = "hidden";
+        hiddenInputDiag.name = "diagnostic";
+        hiddenInputDiag.value = diagnostic;
+
+        // Append to current form
+        this.appendChild(hiddenInputDiag);
+    if (prescription.trim() === '') {
+        alert("Veuillez sélectionner le statut de la prescription.");
+        event.preventDefault();
+        return;
+    }
+    let hiddenInputt = document.createElement("input");
+        hiddenInputt.type = "hidden";
+        hiddenInputt.name = "prescription";
+        hiddenInputt.value = prescription;
+        
+        this.appendChild(hiddenInputt);
     if (!hiddenInput) {
         hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';

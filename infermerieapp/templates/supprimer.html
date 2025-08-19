@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{%load static%}
+{% block css %}
+    <link rel="stylesheet" href="{%static 'css/tableau.css'%}">
+{% endblock %}
+{% block content %}
+    <form method="post" action=".">
+        {% csrf_token %}
+        <div class="form-fields" style="display: flex; flex-direction: column; gap: 16px; max-width: 400px; margin: 30px auto;">
+            <label>
+                Consultation :
+                <input type="text" name="consultation" placeholder="consultation"  required>
+            </label>
+            <label>
+                Institution :
+                <input type="text" name="institution" placeholder="institution"  required>
+            </label>
+            <label>
+                Analyse :
+                <input type="text" name="analyse" placeholder="analyse"  required>
+            </label>
+            <label>
+                Examen :
+                <input type="text" name="examen" placeholder="examen"  required>
+            </label>
+            <button type="submit" style="margin: 20px auto; display: block;">supprimer</button>
+        </div>   
+    </form>    
+{% endblock %}
