@@ -42,6 +42,7 @@
             display: grid;
             grid-template-columns: 1fr 200px;
             gap: 10px;
+            
         }
         form input{
         border-radius: 29px ;
@@ -177,4 +178,9 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+form .search-inpu input{
+    margin-right: 107px;
+    gap: 10px;
+    margin-top: 10px;
 }

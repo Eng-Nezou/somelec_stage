@@ -6,9 +6,30 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate,login,logout
 from .models import Analyse, Consultation, Employer, Examen, Institution,Ordonnance,Medicament, Reference
 from django.contrib.auth.decorators import login_required
+from .forms import *
 from django.db.models import Q
 import datetime
+def index(request):
+    # df = pd.read_excel('acte.xlsx')
+    
+    # for _, row in df.iterrows():
+    #     val = row['montant']   # valeur venant du DataFrame
+    #     val = str(val).replace('\xa0', '').replace(' ', '')  # on enlève les espaces spéciaux
+    #     val = int(val)  # conversion en entier
+    #     row['montant'] = val  # on met à jour la valeur dans le DataFrame
+    #     if row['ACTE']== 'HOSPITALISATION ':
+    #         Hospitalisation.objects.create(
+    #             nom=row['ACTE'],
+    #             service=row['SERVICE'],
+    #             detail=row['detail'],
+    #             drg=row['DRG'],
+    #             montant=row['montant'],
+                
+    #         )
+            
+    
 
+    return render(request, 'index.html')
 def auth_login(request):
     
     if request.method == 'POST':
@@ -85,14 +106,15 @@ def ordonnance_generate(request):
     reference = Reference.objects.last()
     if request.method == 'POST':
         total_quantite = 0
-        gfu_whatsap = request.POST.get('gfu_whatsap')
+        gfu = request.POST.get('gfu')
+        whatsap = request.POST.get('whatsap')
         medicaments_json = request.POST.get('medicaments')
         inam_assurer = request.POST.get('inam_assurer')
         employer = Employer.objects.get(inam=inam_assurer)
         prescription = request.POST.get('prescription')
         diagnostic = request.POST.get('diagnostic')
         
-        ordonnance = Ordonnance(employe=employer, gfu_whatsap=gfu_whatsap,prescription=prescription, diagnostic=diagnostic)
+        ordonnance = Ordonnance(employe=employer, gfu=gfu, whatsap=whatsap,prescription=prescription, diagnostic=diagnostic)
         ordonnance.save()
         
         medicaments = json.loads(medicaments_json) if medicaments_json else []
@@ -125,15 +147,19 @@ def liste_ordonnances(request):
     
     if request.method == 'POST':
         matricule_inam = request.POST.get('matricule_inam')
-        filter_date = request.POST.get('filter_date')
+        debut = request.POST.get('debut')
+        fin = request.POST.get('fin')
         if matricule_inam:
             employers = Employer.objects.filter(
                 Q(inam=matricule_inam) | Q(matricule=matricule_inam)
             )
             ordonnances = ordonnances.filter(employe__in=employers)
 
-        if filter_date:
-            ordonnances = ordonnances.filter(date=filter_date)
+        if debut and fin:
+            debut = request.POST['debut']
+            fin = request.POST['fin']
+            ordonnances = ordonnances.filter(date__range=[debut, fin])
+            
 
         medicaments = Medicament.objects.filter(ordonnance__in=ordonnances)
         
@@ -154,13 +180,15 @@ def ordonnance_modifier(request, pk):
     return redirect('liste_ordonnances')
 
 def voire_ordonnance(request, pk):
-    
+    total_quantite = 0
     reference = Reference.objects.last()
     employer = Ordonnance.objects.get(pk=pk).employe
     ordonnance = Ordonnance.objects.get(pk=pk)
     medicaments = Medicament.objects.filter(ordonnance=ordonnance)
     today_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    return render(request, 'ordonnance_generate.html', {'employer': employer, 'medicaments': medicaments,'date': today_date, 'ordonnance': ordonnance, 'reference':reference})
+    for medicament in medicaments:
+        total_quantite += medicament.quantite
+    return render(request, 'ordonnance_generate.html', {'employer': employer, 'medicaments': medicaments,'date': today_date, 'ordonnance': ordonnance, 'reference':reference, 'total_quantite': total_quantite})
         
         
 def medecin(request):
@@ -281,4 +309,206 @@ def supprimer(request):
             Analyse.objects.filter(nom=analyse).delete()
         if examen:
             Examen.objects.filter(nom=examen).delete()
-    return render(request, 'supprimer.html')         
+    return render(request, 'supprimer.html')     
+
+
+def institution_view(request):
+    institutions = Institution.objects.all()
+    return render(request, 'institution.html', {'institutions': institutions})
+def institution_ajouter(request):
+    if request.method == 'POST':
+        form = InstitutionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = InstitutionForm()
+    return render(request, 'institution_ajouter.html', {'form': form})
+def institution_supprimer(request, pk):
+    institution = Institution.objects.get(pk=pk)
+    
+    institution.delete()
+    return redirect('/liste_bon/')
+def consultation_view(request):
+    consultations = Consultation.objects.all()
+    return render(request, 'consultation.html', {'consultations': consultations})
+def consultation_ajouter(request):
+    if request.method == 'POST':
+        form = ConsultationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ConsultationForm()
+    return render(request, 'consultation_ajouter.html', {'form': form})
+def consultation_supprimer(request, pk):
+    consultation = Consultation.objects.get(pk=pk)
+    
+    consultation.delete()
+    return redirect('/liste_bon/')
+    
+def analyse_view(request):
+    analyses = Analyse.objects.all()
+    return render(request, 'analyse.html', {'analyses': analyses})
+def analyse_ajouter(request):
+    if request.method == 'POST':
+        form = AnalyseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = AnalyseForm()
+    return render(request, 'analyse_ajouter.html', {'form': form})
+def analyse_supprimer(request, pk):
+    analyse = Analyse.objects.get(pk=pk)
+    
+    analyse.delete()
+    return redirect('/liste_bon/')    
+def examen_view(request):
+    examens = Examen.objects.all()
+    return render(request, 'examen.html', {'examens': examens})
+def examen_ajouter(request):
+    if request.method == 'POST':
+        form = ExamenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ExamenForm()
+    return render(request, 'examen_ajouter.html', {'form': form})
+def examen_supprimer(request, pk):
+    examen = Examen.objects.get(pk=pk)
+    
+    examen.delete()
+    return redirect('/liste_bon/')
+def hospitalisation_view(request):
+    hospitalisations = Hospitalisation.objects.all()
+    return render(request, 'hospitalisation.html', {'hospitalisations': hospitalisations})
+def hospitalisation_ajouter(request):
+    if request.method == 'POST':
+        form = HospitalisationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = HospitalisationForm()
+    return render(request, 'hospitalisation_ajouter.html', {'form': form})
+def hospitalisation_supprimer(request, pk):
+    hospitalisation = Hospitalisation.objects.get(pk=pk)
+    
+    hospitalisation.delete()
+    return redirect('/liste_bon/')
+def irm_view(request):
+    irms = Scanner.objects.all()
+    return render(request, 'irm.html', {'irms': irms})
+def irm_ajouter(request):
+    if request.method == 'POST':
+        form = ScannerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ScannerForm()
+    return render(request, 'irm_ajouter.html', {'form': form})
+def irm_supprimer(request, pk):
+    irm = Scanner.objects.get(pk=pk)
+    
+    irm.delete()
+    return redirect('/liste_bon/')
+def echographie_view(request):
+    echographies = Examen.objects.filter(nom__icontains='echographie')
+    return render(request, 'echographie.html', {'echographies': echographies})  
+def echographie_ajouter(request):
+    if request.method == 'POST':
+        form = ExamenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ExamenForm()
+    return render(request, 'echographie_ajouter.html', {'form': form})
+def echographie_supprimer(request, pk):
+    echographie = Examen.objects.get(pk=pk)
+    
+    echographie.delete()
+    return redirect('/liste_bon/')  
+def radiographie_view(request):
+    radiographies = Examen.objects.filter(nom__icontains='radiographie')
+    return render(request, 'radiographie.html', {'radiographies': radiographies})   
+def radiographie_ajouter(request):
+    if request.method == 'POST':
+        form = ExamenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ExamenForm()
+    return render(request, 'radiographie_ajouter.html', {'form': form})
+def radiographie_supprimer(request, pk):
+    radiographie = Examen.objects.get(pk=pk)
+    
+    radiographie.delete()
+    return redirect('/liste_bon/') 
+def produit_view(request):
+    produits = Produit.objects.all()
+    return render(request, 'produit.html', {'produits': produits})      
+def produit_ajouter(request):
+    if request.method == 'POST':
+        form = ProduitForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ProduitForm()
+    return render(request, 'produit_ajouter.html', {'form': form})  
+def produit_supprimer(request, pk):
+    produit = Produit.objects.get(pk=pk)
+    produit.delete()
+    return redirect('/liste_bon/')
+
+def scanner_view(request):
+    scanners = Scanner.objects.all()
+    return render(request, 'scanner.html', {'scanners': scanners})  
+def scanner_ajouter(request):
+    if request.method == 'POST':
+        form = ScannerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/liste_bon/')
+    else:
+        form = ScannerForm()
+    return render(request, 'scanner_ajouter.html', {'form': form})
+def scanner_supprimer(request, pk):
+    scanner = Scanner.objects.get(pk=pk)
+    scanner.delete()
+    return redirect('/liste_bon/')
+
+def ajouter(request):
+
+    return render(request, 'ajouter.html')        
+
+def liste_bon(request):
+    institutions = Institution.objects.all()
+    consultations = Consultation.objects.all()
+    analyses = Analyse.objects.all()
+    examens = Examen.objects.all()
+    irm = Irm.objects.all()
+    echographies = Echographie.objects.all()
+    radiographies = Radiographie.objects.all()
+    hospitalisations = Hospitalisation.objects.all()
+    produits = Produit.objects.all()
+    scanners = Scanner.objects.all()
+    
+    return render(request, 'liste_bon.html', {
+        'institutions': institutions,   
+        'consultations': consultations,
+        'analyses': analyses,
+        'examens': examens,
+        'irm': irm,
+        'echographies': echographies,
+        'radiographies': radiographies,
+        'hospitalisations': hospitalisations,
+        'produits': produits,
+        'scanners': scanners
+    })
+        

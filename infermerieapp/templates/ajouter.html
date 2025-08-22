@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/ajouter.css' %}">
+{% endblock %}
+{% block content %}
+
+    <h1>Ajouter Un Nouvau Acte </h1>
+    <div class="ajouter">
+        <a href="/institution/ajouter/">Ajouter Institution</a>
+        <a href="/consultation/ajouter/">Ajouter Consultation</a>
+        <a href="/irm/ajouter/">Ajouter Irm</a>
+        <a href="/analyse/ajouter/">Ajouter Analyse</a>
+        <a href="/examen/ajouter/">Ajouter Examen</a>
+        <a href="/scanner/ajouter/">Ajouter Scanner</a>
+        <a href="/hospitalisation/ajouter/">Ajouter Hospitalisation</a>
+        <a href="/produit/ajouter/">Ajouter Produit</a>
+        <a href="/radiographie/ajouter/">Ajouter Radiographie</a>
+        <a href="/echographie/ajouter/">Ajouter Echographie</a>
+    </div>
+  
+{% endblock %}
+    

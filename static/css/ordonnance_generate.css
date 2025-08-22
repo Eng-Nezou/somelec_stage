@@ -34,13 +34,15 @@
 
 .field label {
     font-weight: bold;
+    text-decoration: none;
 }
 
 .field span {
     display: inline-block;
-    border-bottom: 1px dotted #000;
+    
     width: 75%;
     margin-left: 5px;
+    text-decoration: none;
 }
 
 .lines {
@@ -91,6 +93,7 @@
         font-family: Arial, sans-serif;
         margin: 30px;
         line-height: 1.4;
+        text-decoration: none;
     }
     .logo {
         display: flex;
@@ -155,10 +158,13 @@
     }
     th, td {
         border: 1px solid #ddd;
-        padding: 8px;
+        padding: 3px;
         text-align: center;
     }
     th {
         background: #f0f0f0;
+    }
+    .linee {
+        margin-top: 100px;
     }
 

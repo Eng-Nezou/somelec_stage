@@ -29,7 +29,8 @@
 </div>
 
 <h2><span>Ordonnancier NO {{ordonnance.id}}</span> </h2>
-<h3>GFU/WHATSAP:{{ordonnance.gfu_whatsap}}</h3>
+<h3>GFU:{{ordonnance.gfu}}</h3>
+<h3>whatsap:{{ordonnance.whatsap}}</h3>
 <h3>Statut de la prescription:{{ordonnance.prescription}}</h3>
 <h3>Diagnostic:{{ordonnance.diagnostic}}</h3>
 <div class="field">
@@ -86,18 +87,58 @@
         Médecin généraliste
     </div>
 </div>
-    <section class="button-imprimer">
-        {% if ordonnance%}
-            {% if ordonnance.validate_chef %}
+<div class="linee">
 
-            <button onclick="imprimer()" >Imprimer</button>
-            {% else %}
-            <a href="/filtre/">Plus tard</a>
-            <p>L'ordonnance ne pas encore valider Par La Chef: {{reference.nom_chef}}</p>
-            {% endif %}
+
+<h2><span>Ordonnancier NO {{ordonnance.id}}</span> </h2>
+<div class="field">
+    <label>Nom :</label><span>{{employer.nom}}</span>
+</div>
+<div class="field">
+    <label>Matricule/INAM :</label><span>{{employer.matricule}} / {{employer.inam}}</span>
+</div>
+<table id="medicaments-table">
+    <thead>
+        <tr>
+            <th>Médicament</th>
+            <th>Dosage</th>
+            <th>Usage/jour</th>
+            <th>Durée</th>
+            <th>Qte demandée</th>
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for medicament in medicaments %}
+        <tr>
+            <td>{{medicament.nom}}</td>
+            <td>{{medicament.dosage}}</td>
+            <td>{{medicament.utilisation}}</td>
+            <td>{{medicament.duree}} {{medicament.type_duree}}(s)</td>
+            <td>{{medicament.quantite}}</td>
+            
+            
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" class="total">Total Quantite</td>
+            <td>{{total_quantite}}</td>
+        </tr>
+    </tbody>
+</table>
+</div>
+<section class="button-imprimer">
+    {% if ordonnance%}
+        {% if ordonnance.validate_chef %}
+
+        <button onclick="imprimer()" >Imprimer</button>
+        {% else %}
+        <a href="/filtre/">Plus tard</a>
+        <p>L'ordonnance ne pas encore valider Par La Chef: {{reference.nom_chef}}</p>
         {% endif %}
-    </section>
-
+    {% endif %}
+</section>
     <script>
         function imprimer() {
             

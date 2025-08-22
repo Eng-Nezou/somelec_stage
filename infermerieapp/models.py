@@ -34,17 +34,94 @@ class Consultation(models.Model):
     
 class Analyse(models.Model):
     nom = models.CharField(max_length=100)
-    
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
         return self.nom     
     
 class Examen(models.Model):
     nom = models.CharField(max_length=100)
-    
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
-        return self.nom      
+        return self.nom     
+    
+class Hospitalisation(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+class Scanner(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+class Irm(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+class Echographie(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+class Produit(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+    
+class Radiographie(models.Model):
+    nom = models.CharField(max_length=100)
+    service = models.CharField(max_length=100, null=True, blank=True)
+    detail = models.TextField(null=True, blank=True)
+    drg= models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(null=True, blank=True)
+    tarif_chn = models.IntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.nom
+    
+
 class Employer(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
@@ -58,7 +135,8 @@ class Employer(models.Model):
 class Ordonnance(models.Model):
     date = models.DateField(auto_now_add=True)
     employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
-    gfu_whatsap = models.CharField(max_length=20, null=True, blank=True)
+    gfu = models.CharField(max_length=20, null=True, blank=True)
+    whatsap = models.CharField(max_length=20, null=True, blank=True)
     prescription = models.CharField(max_length=20, null=True, blank=True, choices=[
         ('Normale', 'Normale'), 
         ('Urgent', 'Urgent'),

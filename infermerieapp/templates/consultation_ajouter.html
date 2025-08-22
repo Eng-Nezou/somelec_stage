@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Ajouter Consultation {% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/acte.css' %}">
+{% endblock %}
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Ajouter Consultation</button>
+    </form>
+{% endblock %}

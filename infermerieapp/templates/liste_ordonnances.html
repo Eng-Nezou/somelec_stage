@@ -19,7 +19,9 @@
             {% csrf_token %}
             
             <div class="search-inpu">
-                <input type="date" name="filter_date" placeholder="Matricule ou Inam" >
+                <input type="date" name="debut" placeholder="Matricule ou Inam" >
+                <input type="date" name="fin" placeholder="Matricule ou Inam" >
+                
                 <button type="submit">Filtrer</button>
             </div>
         </form>
@@ -37,7 +39,8 @@
                                     <p><strong>Statut :</strong> {{ ordonnance.statut }}</p>
                                     <p><strong>Assurer :</strong> {{ ordonnance.employe.nom }} ({{ ordonnance.employe.matricule }})</p>
                                     <p><strong>UR: </strong>{{ ordonnance.employe.ur }}</p>
-                                    <p><strong>gfu_whatsap:</strong>{{ ordonnance.gfu_whatsap }}</p>
+                                    <p><strong>gfu:</strong>{{ ordonnance.gfu }}</p>
+                                    <p><strong>whatsap:</strong>{{ ordonnance.whatsap }}</p>
                                     <p><strong>prescription:</strong>{{ ordonnance.prescription }}</p>
                                     <p><strong>diagnostic:</strong>{{ ordonnance.diagnostic }}</p>
 

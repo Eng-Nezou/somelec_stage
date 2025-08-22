@@ -1,0 +1,27 @@
+form{
+    width: 60%;
+    margin-inline: auto;
+}
+form input , form textarea{
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    font-family: 'poppins';
+}
+form button{
+    background-color: #0c215a;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+}
+form textarea{
+    height: 80px;
+    
+}

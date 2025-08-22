@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/liste_bon.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="consultation">
+        <h1>Consultations</h1>
+        <ul class="liste_bon">
+            {% for consultation in consultations%}
+                <li>
+                    <a href="{% url 'consultation_supprimer' consultation.id %}"><span>{{ consultation.nom }}</span><span>Supprimer</span></a>
+
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="institution">
+        <h1>Institutions</h1>
+        <ul class="liste_bon">
+            {% for institution in institutions %}
+                <li>
+                    <a href="{% url 'institution_supprimer' institution.id %}"><span>{{ institution.nom }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="analyse">
+        <h1>Analyses</h1>
+        <ul class="liste_bon">
+            {% for analyse in analyses %}
+                <li>
+                    <a href="{% url 'analyse_supprimer' analyse.id %}"><span>{{ analyse.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="examen">
+        <h1>Examens</h1>
+        <ul class="liste_bon">
+            {% for examen in examens %}
+                <li>
+                    <a href="{% url 'examen_supprimer' examen.id %}"><span>{{ examen.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="scanner">
+        <h1>Scanners</h1>
+        <ul class="liste_bon">
+            {% for scanner in scanners %}
+                <li>
+                    <a href="{% url 'scanner_supprimer' scanner.id %}"><span>{{ scanner.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="irm">
+        <h1>IRM</h1>
+        <ul class="liste_bon">
+            {% for irm in irms %}
+                <li>
+                    <a href="{% url 'irm_supprimer' irm.id %}"><span>{{ irm.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hospitalisation">
+        <h1>Hospitalisations</h1>
+        <ul class="liste_bon">
+            {% for hospitalisation in hospitalisations %}
+                <li>
+                    <a href="{% url 'hospitalisation_supprimer' hospitalisation.id %}"><span>{{ hospitalisation.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="produit">
+        <h1>Produits</h1>
+        <ul class="liste_bon">
+            {% for produit in produits %}
+                <li>
+                    <a href="{% url 'produit_supprimer' produit.id %}"><span>{{ produit.nom }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="radiographie">
+        <h1>Radiographies</h1>
+        <ul class="liste_bon">
+            {% for radiographie in radiographies %}
+                <li>
+                    <a href="{% url 'radiographie_supprimer' radiographie.id %}"><span>{{ radiographie.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="echographie">
+        <h1>Echographies</h1>
+        <ul class="liste_bon">
+            {% for echographie in echographies %}
+                <li>
+                    <a href="{% url 'echographie_supprimer' echographie.id %}"><span>{{ echographie.service }}</span><span>Supprimer</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+{% endblock %}
