@@ -29,3 +29,37 @@
                 Whatsap:<input type="text" name="whatsap" id="whatsap"  placeholder="whatsap" style="color: rgb(0, 0, 0);" required>
             </p>
         </div>
+        <div class="input-search">
+            <form  method="post">
+                {% csrf_token %}
+                <input type="hidden" name="assurer_inam" value="{{employer.inam}}">
+
+                <input type="search" name="search" placeholder="ajouter un acte">
+                <button type="submit">Rechercher</button>
+            </form>
+
+            {% if data %}
+                <form action="/generate_pris/" method="post">
+                    {% csrf_token %}
+                    <select name="data" id="" multiple>
+                        {% for item in data %}
+                            {% if type == 'consultation' %}
+                            <option value="{{item.id}}">{{item.nom}} </option>
+                            {% else %}
+                            <option value="{{item.id}}">{{item.service}} </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <select name="institution_id" id="">
+                        {% for institution in institutions %}
+                            <option value="{{institution.id}}">{{institution.nom}} </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="data" value="{{type}}">
+                    <input type="hidden" name="assurer_inam" value="{{employer.inam}}">
+                    <button type="submit">generate </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>   
+{% endblock %}        

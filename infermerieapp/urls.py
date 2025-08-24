@@ -53,5 +53,7 @@ urlpatterns = [
     path('scanner/ajouter/', scanner_ajouter, name='scanner_ajouter'),
     path('scanner/supprimer/<int:pk>/', scanner_supprimer, name='scanner_supprimer'),
     path('ajouter/', ajouter, name='ajouter'),
-    path('liste_bon/', liste_bon, name='liste_bon')
+    path('liste_bon/', liste_bon, name='liste_bon'),
+    path('ajouter_pris/', ajouter_pris, name='ajouter_pris'),
+    path('generate_pris/', generate_pris, name='generate_pris'),
 ]

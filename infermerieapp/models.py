@@ -161,15 +161,31 @@ class Ordonnance(models.Model):
 class PrisEnCharge(models.Model):
     employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
-    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
-    analyse = models.ForeignKey(Analyse, on_delete=models.CASCADE, null=True, blank=True)
-    examen = models.ForeignKey(Examen, on_delete=models.CASCADE, null=True, blank=True)
+    consultations = models.ManyToManyField(Consultation, blank=True, related_name='consultations')
+    analyses = models.ManyToManyField(Analyse, blank=True, related_name='analyses')
+    examens = models.ManyToManyField(Examen, blank=True, related_name='examens')
+    hospitalisations = models.ManyToManyField(Hospitalisation, blank=True, related_name='hospitalisations')
+    scanners = models.ManyToManyField(Scanner, blank=True, related_name='scanners')
+    irms = models.ManyToManyField(Irm, blank=True, related_name='irms')
+    echographies = models.ManyToManyField(Echographie, blank=True, related_name='echographies')
+    radiographies = models.ManyToManyField(Radiographie, blank=True, related_name='radiographies')
+    produits = models.ManyToManyField(Produit, blank=True, related_name='produits')
     date = models.DateField(auto_now_add=True)
-    gfu_whatsap = models.CharField(max_length=20, null=True, blank=True)
-    
+    gfu = models.CharField(max_length=20, null=True, blank=True)
+    whatsap = models.CharField(max_length=20, null=True, blank=True)
+    statut = models.CharField(max_length=20, default='en attente' , choices=[
+        ('en attente', 'En attente'),   
+        ('validée', 'Validée'),
+        ('annulée', 'Annulée'),
+        ('terminée', 'Terminée'),
+    ])
     validate_chef = models.BooleanField(default=False)
     validate_medecin = models.BooleanField(default=False)
     validate_technicien = models.BooleanField(default=False)
+    
+    nom_chef = models.CharField(max_length=200,null=True)
+    nom_medecin = models.CharField(max_length=200,null=True)
+    nom_technicien = models.CharField(max_length=200,null=True)
     
     def __str__(self):
         return f"Pris en charge de {self.employe} par {self.institution} pour {self.consultation}"    

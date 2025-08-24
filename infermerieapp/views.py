@@ -511,4 +511,95 @@ def liste_bon(request):
         'produits': produits,
         'scanners': scanners
     })
+    
+def ajouter_pris(request):
+    reference = Reference.objects.last()
+    if request.method == 'POST':
+        employer_inam = request.POST.get('assurer_inam')
+        employer = Employer.objects.get(inam=employer_inam)
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        institutions= Institution.objects.all()
+        search= request.POST.get('search')
+        if search:
+            if search.lower() == 'consultation':
+                consultations = Consultation.objects.all()
+                return render(request, 'charge.html', {'data': consultations,'type':'consultation','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'analyse':
+                analyses= Analyse.objects.all()
+                return render(request, 'charge.html', {'data': analyses,'type':'analyse','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'examen':    
+                examens= Examen.objects.all()
+                return render(request, 'charge.html', {'data': examens,'type':'examen','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'hospitalisation':
+                hospitalisations= Hospitalisation.objects.all()
+                return render(request, 'charge.html', {'data': hospitalisations,'type':'hospitalisation','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'irm':
+                irms= Irm.objects.all()
+                return render(request, 'charge.html', {'data': irms,'type':'irm','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'echographie':
+                echographies= Echographie.objects.all()
+                return render(request, 'charge.html', {'data': echographies,'type':'echographie','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'radiographie':
+                radiographies= Radiographie.objects.all()
+                return render(request, 'charge.html', {'data': radiographies,'type':'radiographie','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'produit':
+                produits= Produit.objects.all()
+                return render(request, 'charge.html', {'data': produits,'type':'produit','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            elif search.lower() == 'scanner':
+                scanners= Scanner.objects.all()
+                return render(request, 'charge.html', {'data': scanners,'type':'scanner','reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})
+            
+        return render(request, 'charge.html', {'data': [],'type':'', 'reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})        
+    return render(request, 'charge.html') 
+
+def generate_pris(request):
+    reference = Reference.objects.last()
+
+    if request.method == 'POST':
+        inam = request.POST.get('assurer_inam')
+        institution_id = request.POST.get('institution_id')
+        institution = Institution.objects.get(id=institution_id)
+        employer = Employer.objects.get(inam=inam)
+        gfu = request.POST.get('gfu')
+        whatsap = request.POST.get('whatsap')
+        pris_en_charge = PrisEnCharge(employe=employer, institution=institution, gfu=gfu, whatsap=whatsap)
+        pris_en_charge.save()
+        
+        # Récupérer les IDs des actes sélectionnés
+        data_ids = request.POST.getlist('data')
+        acte_type = request.POST.get('type')
+        
+        if acte_type == 'consultation':
+            actes = Consultation.objects.filter(id__in=data_ids)
+            pris_en_charge.consultations.set(actes)
+        elif acte_type == 'analyse':
+            actes = Analyse.objects.filter(id__in=data_ids)
+            pris_en_charge.analyses.set(actes)
+        elif acte_type == 'examen':
+            actes = Examen.objects.filter(id__in=data_ids)
+            pris_en_charge.examens.set(actes)
+        elif acte_type == 'hospitalisation':
+            actes = Hospitalisation.objects.filter(id__in=data_ids)
+            pris_en_charge.hospitalisations.set(actes)
+        elif acte_type == 'irm':
+            actes = Irm.objects.filter(id__in=data_ids)
+            pris_en_charge.irms.set(actes)
+        elif acte_type == 'echographie':
+            actes = Echographie.objects.filter(id__in=data_ids)
+            pris_en_charge.echographies.set(actes)
+        elif acte_type == 'radiographie':
+            actes = Radiographie.objects.filter(id__in=data_ids)
+            pris_en_charge.radiographies.set(actes)
+        elif acte_type == 'produit':
+            actes = Produit.objects.filter(id__in=data_ids)
+            pris_en_charge.produits.set(actes)
+        elif acte_type == 'scanner':
+            actes = Scanner.objects.filter(id__in=data_ids)
+            pris_en_charge.scanners.set(actes)
+        pris_en_charge.save()
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        return render(request, 'generate_pris.html', {'pris_en_charge': pris_en_charge, 'employer': employer, 'institution': institution, 'date': today_date; 'reference':reference})
+    
+        
+        # Ajouter les actes sélectionnés au PrisEnCharge
         

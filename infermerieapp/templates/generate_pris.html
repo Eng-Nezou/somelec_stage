@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{%static 'css/ordonnance_generate.css'%}">
+
+    <title>Bon pour prise en charge – SOMELEC</title>
+    <body>
+
+<div class="header">
+    <div class="logo">
+        <img src="{% static 'images/som.jpg'%}" alt="SOMELEC">
+        <img src="{% static 'images/hhh.jpg'%}" alt="">
+    </div>
+        <div class="org-info">
+            
+            SOMELEC (Société Mauritanienne d’Électricité)<br>
+            DCRH (Direction Central de Ressoursses Humaines)<br>
+            SAS (Service Affaires Sociales)<br>
+            CSC (Centre Santé Somelec)
+            <div>
+                <div class="date">Date : {{date}}</div>
+            </div>
+        </div>
+
+        
+</div>
+
+<h2><span>Bon Pour Pris En charge {{pris_en_charge.id}}</span> </h2>
+<h3>GFU:{{pris_en_charge.gfu}}</h3>
+<h3>whatsap:{{pris_en_charge.whatsap}}</h3>
+<h3>Institution:{{institution.nom}}</h3>
+<div class="field">
+    <label>Nom :</label><span>{{employer.nom}}</span>
+</div>
+<div class="field">
+    <label>Matricule/INAM :</label><span>{{employer.matricule}} / {{employer.inam}}</span>
+</div>
+<div class="field">
+    <label>UR :</label><span>{{employer.ur}}</span>
+</div>
+    
+
+<table id="medicaments-table">
+    <thead>
+        <tr>
+            <th>Acte</th>
+            <th>Servise</th>
+            <th>Detail</th>
+            <th>Drg</th>
+            <th>Tarif chn</th>
+            <th>Montant</th>
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for medicament in medicaments %}
+        <tr>
+            <td>{{medicament.nom}}</td>
+            <td>{{medicament.dosage}}</td>
+            <td>{{medicament.utilisation}}</td>
+            <td>{{medicament.duree}} {{medicament.type_duree}}(s)</td>
+            <td>{{medicament.quantite}}</td>
+            
+            
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+
+
+<div class="signature" style="margin-top: 50px;">
+    <div>
+        {{reference.nom_technicien}}<br>
+        Technicien supérieur de santé (Major)
+    </div>
+    <div>
+        {{reference.nom_medecin}}<br>
+        Médecin généraliste
+    </div>
+    <div>
+        {{reference.nom_chef}}<br>
+        chef service SAS
+    </div>
+</div>
+
+<section class="button-imprimer">
+    {% if ordonnance%}
+        {% if ordonnance.validate_chef %}
+
+        <button onclick="imprimer()" >Imprimer</button>
+        {% else %}
+        <a href="/filtre/">Plus tard</a>
+        <p>L'ordonnance ne pas encore valider Par La Chef: {{reference.nom_chef}}</p>
+        {% endif %}
+    {% endif %}
+</section>
+    <script>
+        function imprimer() {
+            
+            window.print();
+        }
+    </script>
+
+</body>
+</html>
