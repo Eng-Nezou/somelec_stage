@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {%load static%}
 {% block css %}
-    <link rel="stylesheet" href="{%static 'css/ordonnance.css'%}">
+    <link rel="stylesheet" href="{%static 'css/charge.css'%}">
 {% endblock %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +28,9 @@
             <p>
                 Whatsap:<input type="text" name="whatsap" id="whatsap"  placeholder="whatsap" style="color: rgb(0, 0, 0);" required>
             </p>
+            <p>
+                Montant:<input type="text" name="montant" id="montant"  placeholder="Ajouter Acte Montant" style="color: rgb(0, 0, 0);" required>
+            </p>
         </div>
         <div class="input-search">
             <form  method="post">
@@ -37,11 +40,12 @@
                 <input type="search" name="search" placeholder="ajouter un acte">
                 <button type="submit">Rechercher</button>
             </form>
+            <p class="notice">NB: rechercher de maniere suivante assurer que le nom est miniscule totalement est en singulier format (exp: consultation ..etc)</p>
 
             {% if data %}
-                <form action="/generate_pris/" method="post">
+                <form action="/generate_pris/" method="post" id="pris-form">
                     {% csrf_token %}
-                    <select name="data" id="" multiple>
+                    <select name="data" id="acte">
                         {% for item in data %}
                             {% if type == 'consultation' %}
                             <option value="{{item.id}}">{{item.nom}} </option>
@@ -50,16 +54,122 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <select name="institution_id" id="">
+                    <select name="institution_id" id="institutions">
                         {% for institution in institutions %}
                             <option value="{{institution.id}}">{{institution.nom}} </option>
                         {% endfor %}
                     </select>
-                    <input type="hidden" name="data" value="{{type}}">
+                    <input type="hidden" name="type" value="{{type}}">
                     <input type="hidden" name="assurer_inam" value="{{employer.inam}}">
                     <button type="submit">generate </button>
                 </form>
+                <button class='ajouter-acte'onclick="handleAjouterActe()">Ajouter</button>
             {% endif %}
         </div>
-    </div>   
-{% endblock %}        
+        <div class="actes">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Acte</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+        <div class="clear">
+            <button onclick="clearTableau()">
+                Effacer Tout
+            </button>
+        </div>
+    </div>
+    <script>
+        let actes = [];
+        
+        const acte = {
+            id:'',
+            montant:''
+        }
+
+        function handleAjouterActe() {
+            let select = document.getElementById('acte');
+            let id = select.value;
+            let label = select.options[select.selectedIndex].text;
+            let montant = document.getElementById('montant').value;
+
+            if (!/^\d+$/.test(montant)) {
+                alert("Montant doit être un nombre valide");
+                return;
+            }
+
+
+            const acte = {
+                id : id,
+                label: label,
+                montant : montant
+            }
+
+            actes.push(acte);
+            handleRemplirTableau();
+        }
+
+        function handleRemplirTableau(){
+            let tab = document.getElementById('tbody');
+            tab.innerHTML = "";
+            for (let i = 0; i < actes.length; i++) {
+                tab.innerHTML += 
+                    `<tr>
+                        <td>${actes[i].label}</td>
+                        <td>${actes[i].montant}</td>
+                    </tr>`;
+            }
+        }
+
+        function clearTableau() {
+            actes = [];
+            handleRemplirTableau(); // refresh the table if needed
+        }
+
+
+
+        document.getElementById('pris-form').addEventListener('submit', function(event) {
+            let gfu = document.getElementById('gfu').value;
+            let whatsap = document.getElementById('whatsap').value;
+
+            if (gfu.trim() === '') {
+                alert("Veuillez entrer le GFU.");
+                event.preventDefault();
+                return;
+            }
+            if (whatsap.trim() === '') {
+                alert("Veuillez entrer le Whatsap.");   
+                event.preventDefault();
+                return;
+            }
+
+            // hidden GFU
+            let hiddenGfu = document.createElement("input");
+            hiddenGfu.type = "hidden";
+            hiddenGfu.name = "gfu";
+            hiddenGfu.value = gfu;
+            this.appendChild(hiddenGfu);
+
+            // hidden Whatsap
+            let hiddenWhatsap = document.createElement("input");
+            hiddenWhatsap.type = "hidden";
+            hiddenWhatsap.name = "whatsap";
+            hiddenWhatsap.value = whatsap;
+            this.appendChild(hiddenWhatsap);
+
+            // hidden actes array
+            let hiddenActes = document.createElement("input");
+            hiddenActes.type = "hidden";
+            hiddenActes.name = "actes_json";
+            hiddenActes.value = JSON.stringify(actes); // <-- serialize array
+            this.appendChild(hiddenActes);
+        });
+
+
+    </script>
+{% endblock %}

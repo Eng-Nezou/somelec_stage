@@ -161,7 +161,11 @@ class Ordonnance(models.Model):
 class PrisEnCharge(models.Model):
     employe = models.ForeignKey(Employer, on_delete=models.CASCADE)
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
-    consultations = models.ManyToManyField(Consultation, blank=True, related_name='consultations')
+    consultations = models.ManyToManyField(
+        Consultation, 
+        blank=True, 
+        related_name='pris_en_charges'  # use a unique name
+    )
     analyses = models.ManyToManyField(Analyse, blank=True, related_name='analyses')
     examens = models.ManyToManyField(Examen, blank=True, related_name='examens')
     hospitalisations = models.ManyToManyField(Hospitalisation, blank=True, related_name='hospitalisations')
@@ -188,9 +192,18 @@ class PrisEnCharge(models.Model):
     nom_technicien = models.CharField(max_length=200,null=True)
     
     def __str__(self):
-        return f"Pris en charge de {self.employe} par {self.institution} pour {self.consultation}"    
+        return f"Pris en charge de {self.employe} par {self.institution}"
+   
     
     
+class PrisEnChargeActe(models.Model):
+    pris_en_charge = models.ForeignKey(PrisEnCharge, on_delete=models.CASCADE, related_name="actes")
+    acte_type = models.CharField(max_length=50)   # e.g. 'consultation', 'analyse'
+    acte_id = models.PositiveIntegerField()       # stores the ID of the acte
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.acte_type} #{self.acte_id} - {self.montant}"
 
 
 class Medicament(models.Model):
@@ -214,5 +227,3 @@ class Medicament(models.Model):
     ])
     def __str__(self):
         return f"{self.nom} - {self.quantite} "
-    
-    

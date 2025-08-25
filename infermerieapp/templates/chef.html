@@ -36,6 +36,7 @@
                                         <p>Utilisation: {{ medicament.utilisation }}/jour(s)</p>
                                         <p>dosage: {{ medicament.dosage }}</p>
                                         <p>duree: {{ medicament.duree }} {{medicament.type_duree}}(s)</p>
+                                        
                                     {% endfor %}
                                     <form action="." method="post" id="ordonnance-form">
                                         {% csrf_token %}

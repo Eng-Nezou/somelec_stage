@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Ordonnance Générée{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/liste_ordonnances.css' %}">
+{% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <div class="section">
+        {% if data %}
+            <div class="ordonnances">
+                {% for entry in data %}
+                    {% with pec=entry.pec %}
+                    <article class="pec">
+                        <div class="ordonnance-info">
+                            <h3>Pris En Charge #{{ pec.id }}</h3>
+                            <p><strong>Date :</strong> {{ pec.date }}</p>
+                            <p><strong>Statut :</strong> {{ pec.statut }}</p>
+                            <p><strong>Assuré :</strong> {{ pec.employe.nom }} ({{ pec.employe.matricule }})</p>
+                            <p><strong>UR:</strong> {{ pec.employe.ur }}</p>
+                            <p><strong>GFU:</strong> {{ pec.gfu }}</p>
+                            <p><strong>WhatsApp:</strong> {{ pec.whatsap }}</p>
+                            <p><strong>Prescription:</strong> {{ pec.prescription }}</p>
+                            <p><strong>Diagnostic:</strong> {{ pec.diagnostic }}</p>
+                        </div>
+
+                        <!-- Actes Table -->
+                        <div class="actes">
+                                <h4>Actes :</h4>
+                                {% if entry.actes %}
+                                    {% for acte in entry.actes %}
+                                        <p>
+                                            <strong>Type :</strong> {{ acte.type }} <br>
+                                            <strong>Nom :</strong> {{ acte.nom }} <br>
+                                            <strong>service:</strong>{{acte.service}}<br>
+                                            <strong>detail:</strong>{{acte.detail}}<br>
+                                            <strong>drg:</strong>{{acte.drg}}<br>
+                                            <strong>tarif_chn:</strong>{{ acte.tarif_chn }} <br>
+                                            <strong>Montant :</strong> {{ acte.montant }}
+
+                                        </p>
+                                    {% endfor %}
+                                {% else %}
+                                    <p></p>
+                                {% endif %}
+                            </div>
+                        <form action="." method="post" id="ordonnance-form">
+                            {% csrf_token %}
+                                <select name="statut" onchange="handleSubmitForm(event)">
+                                    <option value="">---</option>
+                                    <option value="validée">Validée</option>
+                                    <option value="annulée">Annulée</option>
+                                </select>
+                                <input type="hidden" value="{{ pec.id }}" name="pris_en_charge_id">
+                        </form>
+                    </article>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p></p>
+        {% endif %}
+        </div>
+
+        <div class="toast-container animate-toast" id="success-message">
+                <div class="toast-content">
+                    bon a validée avec success
+                    <div class="toast-progress" >
+                    </div>
+                </div>
+        </div>
+{% endblock %}
+{% block js %}
+<script>
+
+        function handleSubmitForm(event){
+            let statut = event.target.value;
+
+            let successMessage = document.getElementById('success-message');
+            let form = document.getElementById('ordonnance-form');
+            
+            if (statut === 'validée'){
+                successMessage.innerHTML = "<div class='toast-content'>bon est validee avec success<div class='toast-progress'></div></div>";
+            }
+            else{
+                successMessage.innerHTML = "<div class='toast-content'>bon est annulee avec success<div class='toast-progress'></div></div>";
+            }
+            successMessage.style.display = 'flex';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                form.submit();
+            }, 3000);
+
+        }
+    
+    </script>
+{% endblock %}

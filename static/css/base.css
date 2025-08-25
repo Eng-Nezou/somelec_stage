@@ -1,4 +1,4 @@
-      header {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -43,11 +43,88 @@ header h1{
 .links a {
     color:#0c215a;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: .9rem;
     transition: color 0.2s;
     font-family: 'poppins';
 }
 
 .links a:hover {
     color: #000000;
+}
+
+nav{
+    z-index: 99;
+    position: absolute;
+    top: 120px;
+    right: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 10px #ddd;
+    border-radius: 5px;
+    display: none;
+    animation: fadeIn .2s ease ;
+}
+
+@keyframes fadeIn {
+    0%{
+        transform: translateY(-30px);
+    }
+    25%{
+        transform: translateY(-29px);
+
+    }
+    50%{
+        transform: translateY(-28px);
+
+    }
+    75%{
+        transform: translateY(-27px);
+
+    }
+    100%{
+        transform: translateY(-26px);
+
+    }
+}
+nav ul {
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    border-radius: 3px;
+}
+nav ul  li{
+    padding: 5px 15px;
+    margin: 0;
+    transition: .2s ease;
+}
+nav ul li:hover{
+    background-color: #ddd;
+}
+nav ul li:last-child {
+    background-color: #e8e8e8;
+}
+nav ul li a{
+    text-decoration: none;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navToggle {
+    display: none;
+    background-color: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 3px;
+    padding: 5px;
+}
+.navToggle i {
+    font-size: 32px;
+}
+
+@media (max-width: 1230px){
+    .links {
+        display: none;
+    }
+    .navToggle{
+        display: block;
+    }
 }

@@ -56,4 +56,10 @@ urlpatterns = [
     path('liste_bon/', liste_bon, name='liste_bon'),
     path('ajouter_pris/', ajouter_pris, name='ajouter_pris'),
     path('generate_pris/', generate_pris, name='generate_pris'),
+    path('liste_pris_en_charges/chef/',chef_pris_en_charge),
+    path('liste_pris_en_charge/', liste_pris_en_charges),
+    path('liste_pris_en_charges/chef/', pris_en_charge_chef, name='liste_pris_en_charges'),
+    path('pris_en_charge/pdf/<int:pk>/', voire_pris_en_charge),
+    path('technicien/',technicien),
+    path('liste_pris_en_charges/medecin/',medecin_pris_en_charge)
 ]

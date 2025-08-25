@@ -1,3 +1,4 @@
+from django.db.models import Q
 import json
 import pandas as pd
 from django.http import HttpResponse
@@ -9,23 +10,28 @@ from django.contrib.auth.decorators import login_required
 from .forms import *
 from django.db.models import Q
 import datetime
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+
 def index(request):
-    # df = pd.read_excel('acte.xlsx')
+    # df = pd.read_excel('consu.xlsx')
     
     # for _, row in df.iterrows():
-    #     val = row['montant']   # valeur venant du DataFrame
-    #     val = str(val).replace('\xa0', '').replace(' ', '')  # on enlève les espaces spéciaux
-    #     val = int(val)  # conversion en entier
-    #     row['montant'] = val  # on met à jour la valeur dans le DataFrame
-    #     if row['ACTE']== 'HOSPITALISATION ':
-    #         Hospitalisation.objects.create(
-    #             nom=row['ACTE'],
-    #             service=row['SERVICE'],
-    #             detail=row['detail'],
-    #             drg=row['DRG'],
-    #             montant=row['montant'],
+    # #     val = row['montant']   # valeur venant du DataFrame
+    # #     val = str(val).replace('\xa0', '').replace(' ', '')  # on enlève les espaces spéciaux
+    # #     val = int(val)  # conversion en entier
+    # #     row['montant'] = val  # on met à jour la valeur dans le DataFrame
+    #     if row['CONSULTAION']:
+    #         Consultation.objects.create(nom=row['CONSULTAION'])
+    #     if row['INSTIUTION']:
+    #         Institution.objects.create(nom=row['INSTIUTION'])
+        
+            
+            
+        
                 
-    #         )
+    
+        
             
     
 
@@ -53,7 +59,6 @@ def gestionnaire(request):
 
 def filter_employers(request):
     employers = []
-    
     # df = pd.read_excel('employers.xlsx')
     # for _, row in df.iterrows():
     #     Employer.objects.create(
@@ -63,6 +68,7 @@ def filter_employers(request):
     #         matricule=row['MATRICULE'],
     #         inam=row['INAM']
     #     )
+    
 
 
     if request.method == 'POST':
@@ -139,7 +145,7 @@ def ordonnance_generate(request):
 
 
 
-from django.db.models import Q
+
 
 def liste_ordonnances(request):
     ordonnances = Ordonnance.objects.all().order_by('-date')  # start with all
@@ -178,6 +184,44 @@ def ordonnance_modifier(request, pk):
     ordonnance.statut = 'terminée'
     ordonnance.save()
     return redirect('liste_ordonnances')
+
+def voire_pris_en_charge(request, pk):
+    reference = Reference.objects.last()
+    pris_en_charge = get_object_or_404(PrisEnCharge, pk=pk)
+    employer = pris_en_charge.employe
+    today_date = timezone.now().date()
+
+    def get_actes_with_montant(model, acte_type):
+            actes_list = []
+            for acte_row in PrisEnChargeActe.objects.filter(pris_en_charge=pris_en_charge, acte_type=acte_type):
+                try:
+                    obj = model.objects.get(id=acte_row.acte_id)
+                    actes_list.append({
+                        'obj': obj,
+                        'montant': acte_row.montant
+                    })
+                except model.DoesNotExist:
+                    continue
+            return actes_list
+
+    context = {
+        'pris_en_charge': pris_en_charge,
+        'employer': employer,
+        'institution': pris_en_charge.institution,
+        'date': today_date,
+        'reference': reference,
+        'consultations': get_actes_with_montant(Consultation, 'consultation'),
+        'analyses': get_actes_with_montant(Analyse, 'analyse'),
+        'examens': get_actes_with_montant(Examen, 'examen'),
+        'hospitalisations': get_actes_with_montant(Hospitalisation, 'hospitalisation'),
+        'irms': get_actes_with_montant(Irm, 'irm'),
+        'echographies': get_actes_with_montant(Echographie, 'echographie'),
+        'radiographies': get_actes_with_montant(Radiographie, 'radiographie'),
+        'produits': get_actes_with_montant(Produit, 'produit'),
+        'scanners': get_actes_with_montant(Scanner, 'scanner'),
+    }
+
+    return render(request, 'generate_pris.html', context)
 
 def voire_ordonnance(request, pk):
     total_quantite = 0
@@ -231,6 +275,36 @@ def medecin(request):
         'ordonnances': ordonnances,
         'medicaments': medicaments
     })
+
+def pris_en_charge_chef(request):
+    reference = Reference.objects.last()
+    if request.user.role != 'chef service':
+        return redirect('/dashbord/')
+    pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+
+    
+    if request.method == 'POST':
+        pris_en_charge_id=request.POST.get('pris_en_charge_id')
+        statut=request.POST.get('statut')
+        pris_en_charge=PrisEnCharge.objects.get(id=pris_en_charge_id)
+        pris_en_charge.statut=statut
+
+        pris_en_charge.nom_chef=reference.nom_chef
+        if statut == 'validée':
+            pris_en_charge.validate_chef = True
+        
+        pris_en_charge.save()
+
+        pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+
+        return render(request, 'pris_en_charge_chef.html', {
+        'pris_en_charges': pris_en_charges
+        })
+    return render(request, 'pris_en_charge_chef.html', {
+        'pris_en_charges': pris_en_charges,
+
+    })
+
 def chef(request):
     reference = Reference.objects.last()
     if request.user.role != 'chef service':
@@ -249,6 +323,7 @@ def chef(request):
             ordonnance.validate_chef = True
         
         ordonnance.save()
+
         ordonnances = Ordonnance.objects.filter(statut='en attente').order_by('-date')
         medicaments = Medicament.objects.none()
         return render(request, 'chef.html', {
@@ -552,54 +627,284 @@ def ajouter_pris(request):
         return render(request, 'charge.html', {'data': [],'type':'', 'reference':reference,'employer':employer, 'date':today_date, 'institutions': institutions})        
     return render(request, 'charge.html') 
 
+
 def generate_pris(request):
     reference = Reference.objects.last()
 
     if request.method == 'POST':
         inam = request.POST.get('assurer_inam')
         institution_id = request.POST.get('institution_id')
-        institution = Institution.objects.get(id=institution_id)
-        employer = Employer.objects.get(inam=inam)
+
+        institution = get_object_or_404(Institution, id=institution_id)
+        employer = get_object_or_404(Employer, inam=inam)
+
         gfu = request.POST.get('gfu')
         whatsap = request.POST.get('whatsap')
-        pris_en_charge = PrisEnCharge(employe=employer, institution=institution, gfu=gfu, whatsap=whatsap)
+
+        pris_en_charge = PrisEnCharge.objects.create(
+            employe=employer,
+            institution=institution,
+            gfu=gfu,
+            whatsap=whatsap
+        )
+
+        actes_json = request.POST.get('actes_json')
+        if actes_json:
+            try:
+                actes_data = json.loads(actes_json)
+                for acte in actes_data:
+                    acte_id = acte.get("id")
+                    montant = acte.get("montant")
+                    acte_type = request.POST.get("type")
+
+                    PrisEnChargeActe.objects.create(
+                        pris_en_charge=pris_en_charge,
+                        acte_type=acte_type,
+                        acte_id=acte_id,
+                        montant=montant
+                    )
+            except json.JSONDecodeError:
+                print("Error decoding actes_json")
+
+        # Helper to attach montant
+        def get_actes_with_montant(model, acte_type):
+            actes_list = []
+            for acte_row in PrisEnChargeActe.objects.filter(pris_en_charge=pris_en_charge, acte_type=acte_type):
+                try:
+                    obj = model.objects.get(id=acte_row.acte_id)
+                    actes_list.append({
+                        'obj': obj,
+                        'montant': acte_row.montant
+                    })
+                except model.DoesNotExist:
+                    continue
+            return actes_list
+
+        context = {
+            'pris_en_charge': pris_en_charge,
+            'employer': employer,
+            'institution': institution,
+            'date': timezone.now().date(),
+            'reference': reference,
+            'consultations': get_actes_with_montant(Consultation, 'consultation'),
+            'analyses': get_actes_with_montant(Analyse, 'analyse'),
+            'examens': get_actes_with_montant(Examen, 'examen'),
+            'hospitalisations': get_actes_with_montant(Hospitalisation, 'hospitalisation'),
+            'irms': get_actes_with_montant(Irm, 'irm'),
+            'echographies': get_actes_with_montant(Echographie, 'echographie'),
+            'radiographies': get_actes_with_montant(Radiographie, 'radiographie'),
+            'produits': get_actes_with_montant(Produit, 'produit'),
+            'scanners': get_actes_with_montant(Scanner, 'scanner'),
+        }
+
+        return render(request, 'generate_pris.html', context)
+
+    # GET
+    return render(request, 'generate_pris_form.html', {'reference': reference})
+
+
+def get_actes_with_montant(pris_en_charge):
+    actes_data = []
+
+    for acte in pris_en_charge.actes.all():
+        obj = None
+
+        if acte.acte_type == "consultation":
+            obj = Consultation.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "analyse":
+            obj = Analyse.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "examen":
+            obj = Examen.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "hospitalisation":
+            obj = Hospitalisation.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "scanner":
+            obj = Scanner.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "irm":
+            obj = Irm.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "echographie":
+            obj = Echographie.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "radiographie":
+            obj = Radiographie.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+        elif acte.acte_type == "produit":
+            obj = Produit.objects.filter(id=acte.acte_id).first()
+            tarif_chn = getattr(obj, "tarif_chn", 0)
+            
+
+
+        if obj:
+            nom = getattr(obj, "nom", str(obj))
+            actes_data.append({
+                "type": acte.acte_type,
+                "nom": nom,
+                "service": getattr(obj, "service", None),   # ⚡ récupération du service
+                "detail": getattr(obj, "detail", None),     # ⚡ récupération du détail
+                "drg": getattr(obj, "drg", None),           # ⚡ récupération du DRG
+
+                "montant": acte.montant if acte.montant is not None else 0,
+                "tarif_chn": tarif_chn if tarif_chn is not None else 0,
+            })
+
+    return actes_data
+def liste_pris_en_charges(request):
+    pris_en_charges = PrisEnCharge.objects.all()
+
+    if request.method == 'POST':
+        matricule_inam = request.POST.get('matricule_inam')
+        debut = request.POST.get('debut')
+        fin = request.POST.get('fin')
+
+        if matricule_inam:
+            employers = Employer.objects.filter(
+                Q(inam=matricule_inam) | Q(matricule=matricule_inam)
+            )
+            pris_en_charges = pris_en_charges.filter(employe__in=employers)
+
+        if debut and fin:
+            pris_en_charges = pris_en_charges.filter(date__range=[debut, fin])
+
+    # enrich actes
+    enriched_data = []
+    for pec in pris_en_charges:
+        enriched_data.append({
+            "pec": pec,
+            "actes": get_actes_with_montant(pec)
+        })
+
+    return render(request, 'liste_pris_en_charges.html', {
+        "data": enriched_data
+    })
+
+def technicien(request):
+
+    reference = Reference.objects.last()
+    if request.user.role!='technicien':
+        return redirect('/dashbord/')
+    pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+    pris_en_charges = pris_en_charges.filter(validate_technicien=False)
+
+    if request.method == 'POST':
+        pris_en_charge_id=request.POST.get('pris_en_charge_id')
+        statut=request.POST.get('statut')
+        pris_en_charge=PrisEnCharge.objects.get(id=pris_en_charge_id)
+        if statut == 'validée':
+            pris_en_charge.validate_technicien = True
+        else:
+            pris_en_charge.validate_technicien = False
+        
+        
+        
+
+        pris_en_charge.nom_technicien=reference.nom_technicien
+
+        
         pris_en_charge.save()
         
-        # Récupérer les IDs des actes sélectionnés
-        data_ids = request.POST.getlist('data')
-        acte_type = request.POST.get('type')
+        pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+
+        pris_en_charges = pris_en_charges.filter(validate_technicien=False)
+
+
+    enriched_data = []
+    for pec in pris_en_charges:
+        enriched_data.append({
+            "pec": pec,
+            "actes": get_actes_with_montant(pec)
+        })
+
+    return render(request, 'technicien.html', {
+        "data": enriched_data
+    })
+
+
+def medecin_pris_en_charge(request):
+
+    reference = Reference.objects.last()
+    if request.user.role!='medecin':
+        return redirect('/dashbord/')
+    pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+    pris_en_charges = pris_en_charges.filter(validate_medecin=False)
+
+    if request.method == 'POST':
+        pris_en_charge_id=request.POST.get('pris_en_charge_id')
+        statut=request.POST.get('statut')
+        pris_en_charge=PrisEnCharge.objects.get(id=pris_en_charge_id)
+        if statut == 'validée':
+            pris_en_charge.validate_medecin = True
+        else:
+            pris_en_charge.validate_medecin = False
         
-        if acte_type == 'consultation':
-            actes = Consultation.objects.filter(id__in=data_ids)
-            pris_en_charge.consultations.set(actes)
-        elif acte_type == 'analyse':
-            actes = Analyse.objects.filter(id__in=data_ids)
-            pris_en_charge.analyses.set(actes)
-        elif acte_type == 'examen':
-            actes = Examen.objects.filter(id__in=data_ids)
-            pris_en_charge.examens.set(actes)
-        elif acte_type == 'hospitalisation':
-            actes = Hospitalisation.objects.filter(id__in=data_ids)
-            pris_en_charge.hospitalisations.set(actes)
-        elif acte_type == 'irm':
-            actes = Irm.objects.filter(id__in=data_ids)
-            pris_en_charge.irms.set(actes)
-        elif acte_type == 'echographie':
-            actes = Echographie.objects.filter(id__in=data_ids)
-            pris_en_charge.echographies.set(actes)
-        elif acte_type == 'radiographie':
-            actes = Radiographie.objects.filter(id__in=data_ids)
-            pris_en_charge.radiographies.set(actes)
-        elif acte_type == 'produit':
-            actes = Produit.objects.filter(id__in=data_ids)
-            pris_en_charge.produits.set(actes)
-        elif acte_type == 'scanner':
-            actes = Scanner.objects.filter(id__in=data_ids)
-            pris_en_charge.scanners.set(actes)
+        
+        
+
+        pris_en_charge.nom_medecin=reference.nom_medecin
+
+        
         pris_en_charge.save()
-        today_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        return render(request, 'generate_pris.html', {'pris_en_charge': pris_en_charge, 'employer': employer, 'institution': institution, 'date': today_date; 'reference':reference})
+        
+        pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+
+        pris_en_charges = pris_en_charges.filter(validate_medecin=False)
+
+
+    enriched_data = []
+    for pec in pris_en_charges:
+        enriched_data.append({
+            "pec": pec,
+            "actes": get_actes_with_montant(pec)
+        })
+
+    return render(request, 'medecin_pris_en_charge.html', {
+        "data": enriched_data
+    })
+def chef_pris_en_charge(request):
     
+
+    reference = Reference.objects.last()
+    if request.user.role!='chef service':
+        return redirect('/dashbord/')
+    pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+    pris_en_charges = pris_en_charges.filter(validate_chef=False)
+
+    if request.method == 'POST':
+        pris_en_charge_id=request.POST.get('pris_en_charge_id')
+        statut=request.POST.get('statut')
+        pris_en_charge=PrisEnCharge.objects.get(id=pris_en_charge_id)
+        if statut == 'validée':
+            pris_en_charge.validate_chef = True
+            pris_en_charge.statut='validée'
+        else:
+            pris_en_charge.validate_chef = False
+            pris_en_charge.statut='annulée'
+
         
-        # Ajouter les actes sélectionnés au PrisEnCharge
         
+        
+
+        pris_en_charge.nom_chef=reference.nom_chef
+
+        
+        pris_en_charge.save()
+        
+        pris_en_charges = PrisEnCharge.objects.filter(statut='en attente').order_by('-date')
+
+        pris_en_charges = pris_en_charges.filter(validate_chef=False)
+
+
+    enriched_data = []
+    for pec in pris_en_charges:
+        enriched_data.append({
+            "pec": pec,
+            "actes": get_actes_with_montant(pec)
+        })
+
+    return render(request, 'pris_en_charge_chef.html', {
+        "data": enriched_data
+    })

@@ -52,10 +52,10 @@
                                         <p>Utilisation: {{ medicament.utilisation }}/jour(s)</p>
                                         <p>dosage: {{ medicament.dosage }}</p>
                                         <p>duree: {{ medicament.duree }} {{medicament.type_duree}}(s)</p>
-                                        <p>total_quantite: {{ medicament.total_quantite }} </p>
+                                        
                                     {% endfor %}
                                 </div>
-                                {%if ordonnance.statut == 'validée'%}
+                                {%if ordonnance.statut == 'validée'%}<p>total_quantite: {{ medicament.total_quantite }} </p>
                                     <a href="/ordonnances/{{ ordonnance.id }}/">Terminer</a>
                                     <a href="/ordonnance/pdf/{{ ordonnance.id }}/">Voire L'ordonnance</a>
                                 {% endif %}
@@ -72,7 +72,7 @@
                         </div>
                         
                     {% else %}
-                        <p>Aucune ordonnance trouvée.</p>
+                        
                     {% endif %}
                 </div>
             </div>

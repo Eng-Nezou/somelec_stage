@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Liste des Prises en Charge {% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/liste_ordonnances.css' %}">
+{% endblock %}
+
+{% block content %}
+    <form action="." method="post">
+        {% csrf_token %}
+        <h1>Rechercher un Employer</h1>
+        <div class="search-input">
+            <input type="search" name="matricule_inam" placeholder="Matricule ou Inam">
+            <button type="submit">Rechercher</button>
+        </div>
+    </form>
+
+    <form action="." method="post">
+        {% csrf_token %}
+        <div class="search-inpu">
+            <label for="">Début</label>
+            <input type="date" name="debut">
+            <label for="">Fin</label>
+            <input type="date" name="fin">
+            <button type="submit">Filtrer</button>
+        </div>
+    </form>
+
+    <section>
+        <div class="container">
+            <div class="section">
+            {% if data %}
+                <div class="ordonnances">
+                    {% for entry in data %}
+                        {% with pec=entry.pec %}
+                        <article>
+                            <div class="ordonnance">
+                                <h3>Pris En Charge #{{ pec.id }}</h3>
+                                <p><strong>Date :</strong> {{ pec.date }}</p>
+                                <p><strong>Statut :</strong> {{ pec.statut }}</p>
+                                <p><strong>Assuré :</strong> {{ pec.employe.nom }} ({{ pec.employe.matricule }})</p>
+                                <p><strong>UR:</strong> {{ pec.employe.ur }}</p>
+                                <p><strong>GFU:</strong> {{ pec.gfu }}</p>
+                                <p><strong>WhatsApp:</strong> {{ pec.whatsap }}</p>
+                                <p><strong>institution:</strong>{{pec.institution}}</p>
+                            </div>
+
+                            
+                                
+
+                            <div class="actes">
+                                <h4>Actes :</h4>
+                                {% if entry.actes %}
+                                    {% for acte in entry.actes %}
+                                        <p>
+                                            <strong>Type :</strong> {{ acte.type }} <br>
+                                            <strong>Nom :</strong> {{ acte.nom }} <br>
+                                            <strong>service:</strong>{{acte.service}}<br>
+                                            <strong>detail:</strong>{{acte.detail}}<br>
+                                            <strong>drg:</strong>{{acte.drg}}<br>
+                                            <strong>tarif_chn:</strong>{{ acte.tarif_chn }} <br>
+                                            <strong>Montant :</strong> {{ acte.montant }}
+                                        </p>
+                                    {% endfor %}
+                                {% else %}
+                                    <p></p>
+                                {% endif %}
+                            </div>
+
+                            {% if pec.statut == 'validée' %}
+                                <a href="/pris_en_charge/pdf/{{ pec.id }}/">Voir Pris En Charge</a>
+                                <section class="validation">
+                                    <p>Validé par Chef: {{ pec.nom_chef }}</p>
+                                    {% if pec.nom_medecin %}
+                                        <p>Validé par Médecin: {{ pec.nom_medecin }}</p>
+                                    {% elif pec.nom_technicien%}   
+                                        <p>Validé par Technicien: {{ pec.nom_technicien }}</p> 
+                                    {% endif %}
+                                </section>
+                            {% endif %}
+                        </article>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Aucune prise en charge trouvée.</p>
+            {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

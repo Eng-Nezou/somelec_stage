@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+
     
     {% block css %}{% endblock %}
     <link rel="stylesheet" href="{%static 'css/base.css'%}">
@@ -29,21 +32,57 @@
                         <li><a href="/liste_bon/">Liste bon</a></li>
                         {% elif user.role == 'chef service' %}
                         <li><a href="/liste_ordonnances/chef/">Listes Ordonnaces</a></li>
+                        <li><a href="/liste_pris_en_charges/chef/">Listes Pris En Charge</a></li>
                         {% elif user.role == 'medecin' %}
                         <li><a href="/liste_ordonnances/medecin/">Listes Ordonnaces</a></li>
-                {% endif %}
-            <li><a href="/logout/">Logout</a></li>
+                        <li><a href="/liste_pris_en_charges/medecin/">Listes Pris En Charges</a></li>
+                        {% elif user.role == 'technicien' %}
+                        <li><a href="/technicien/">Listes Pris En Charges</a></li>
+
+                        {% endif %}
+                        <li><a href="/logout/">Logout</a></li>
                 </ul>
-                    
-                        
-    
             </div>
+            <div class="navToggle" onclick="handleNavToggle()" style="color: black">
+                <i class='bx bx-menu'></i>
+            </div>
+            <nav id="navigation">
+                <ul>
+                    {% if user.role == 'gestionnaire' %}
+                        <li><a href="/filtre/">Ordonnaces</a></li>
+                        <li><a href="/pris_charge/">Pris en charge</a></li>
+                        <li><a href="/liste_ordonnances/">Listes Ordonnaces</a></li>
+                        <li><a href="/liste_pris_en_charge/">liste pris en charge</a></li>
+                        <li><a href="/tableau_referencer/">tableau referencer</a></li>
+                        <li><a href="/ajouter/">Tableau Bon</a></li>
+                        <li><a href="/liste_bon/">Liste bon</a></li>
+                        {% elif user.role == 'chef service' %}
+                        <li><a href="/liste_ordonnances/chef/">Listes Ordonnaces</a></li>
+                        <li><a href="/liste_pris_en_charges/chef/">Listes Pris En Charge</a></li>
+                        {% elif user.role == 'medecin' %}
+                        <li><a href="/liste_ordonnances/medecin/">Listes Ordonnaces</a></li>
+                        <li><a href="/liste_pris_en_charges/medecin/">Listes Pris En Charges</a></li>
+                        {% elif user.role == 'technicien' %}
+                        <li><a href="/technicien/">Listes Pris En Charges</a></li>
+    
+                        {% endif %}
+                        <li><a href="/logout/">Logout</a></li>
+                </ul>
+            </nav>
         </header>
         <main>
             {% block content %}
             {% endblock %}
 
         </main>
-        {% block js %}{% endblock %}
+        {% block js %}
+            <script>
+                function handleNavToggle() {
+                    let nav = document.getElementById('navigation');
+                    nav.style.display == 'flex' ? nav.style.display = 'none' : nav.style.display = 'flex';
+
+                }
+            </script>
+        {% endblock %}
 </body>
 </html>
